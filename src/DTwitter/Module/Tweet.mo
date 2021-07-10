@@ -16,11 +16,14 @@ module {
     //tweet owner
     public type Owner = Principal;
     //tweet comment
-    public type Comment = Text;
+    public type Comment = {
+        commentNumber : Nat32;
+        commentList : [Text];
+    };
     //tweet like
     public type Like = {
-        like_number : Nat32;
-        like_List : [Principal];
+        likeNumber : Nat32;
+        likeList : [Principal];
     };
 
     public type Tweet = {
@@ -31,10 +34,9 @@ module {
         owner : Owner;
         comment : Comment;
         like : Like;
+        //todo
+        //visiable
     };
-
-    public type TweetMap = HashMap.HashMap<Nat32, Tweet>;
-
 
 
 };

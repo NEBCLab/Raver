@@ -30,6 +30,7 @@ module{
             time : Text,
             owner : Principal){
                 var zero = Nat32.fromNat(0);
+                var nulArray : [Like]= [];
                 var tempArray : [Nat32] = [];
                 tweetMap.put({
                     tid = tid;
@@ -37,8 +38,8 @@ module{
                     topic = topic;
                     time = time;
                     owner = owner;
-                    comment = {zero; []};
-                    like = {zero; []};
+                    comment = {zero; [];};
+                    like = {zero; [];};
                 });
                 tid += 1;
         };

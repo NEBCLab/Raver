@@ -124,7 +124,6 @@ module{
             userTweet.get(uid)
         };
 
-
         //TODO : tweet [] -> Tree
         public func deleteUserTweet(uid : Principal, tid : Nat32) : bool{
             var newArray : [Nat32] = []; 

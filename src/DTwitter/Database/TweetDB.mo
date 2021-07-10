@@ -11,6 +11,7 @@ module{
         */
         private var tweetMap = HashMap.HashMap<Nat32, Tweet>(1, Hash.hash, Hash.equal);
 
+
         /**
         * global tweet id 
         * tid : Nat32
@@ -87,7 +88,6 @@ module{
             array
         };
 
-
         /**
         * get tweet by id
         */
@@ -95,16 +95,22 @@ module{
             tweetMap.get(tid)
         };
 
-
         /**
         * create tweet and put tweet into tweet map
         * @param uid : user's Principal
         * @param tweet : Tweet 
         * @return ?TID : TID or null
         
-        public func getMyTweetList(uid : Principal, userDB : userDB) : ?[Tweet]{
+        public func getMyTweets(uid : Principal, userDB : userDB) : ?[Tweet]{
             
         };
         */
+
+
+
+
+
+
+
     };
 };

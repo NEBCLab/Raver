@@ -1,5 +1,16 @@
-actor {
-    public func greet(name : Text) : async Text {
-        return "Hello, " # name # "!";
-    };
+import TweetDB "./Database/TweetDB";
+
+actor DTwitter{
+    private tdb = TweetDB.TweetDB();
+
+    /**
+    * create tweet
+    */
+    
+
+
+
+
+
+
 };

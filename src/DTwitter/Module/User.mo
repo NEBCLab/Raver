@@ -17,7 +17,5 @@ module {
     public type User = {
         uid : UID;
         uname ： UName;
-        //user's tweets
-        utweet : [Tweet.TID];
     };
 };

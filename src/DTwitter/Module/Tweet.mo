@@ -1,7 +1,6 @@
 import HashMap "mo:base/Hashmap";
 import Hash "mo:base/Hash";
 
-
 module {
     //Tweet ID
     public type TID = Nat32;
@@ -27,11 +26,11 @@ module {
     };
 
     public type Tweet = {
-        tid : TID;
-        content : Content;
-        topic : Topic;
-        time : Time;
-        owner : Owner;
+        tid : Nat32;
+        content : Text;
+        topic : Text;
+        time : Text;
+        owner : Principal;
         comment : Comment;
         like : Like;
         //todo

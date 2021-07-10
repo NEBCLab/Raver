@@ -1,5 +1,6 @@
 import Tweet "../Module/Tweet";
 import User "../Module/User";
+import Nat32 "mo:base/Nat32";
 
 module{
     type Tweet = Tweet.Tweet;
@@ -9,8 +10,7 @@ module{
         /**
         * tweet map : map<tweet TID , Tweet>
         */
-        private var tweetMap = HashMap.HashMap<Nat32, Tweet>(1, Hash.hash, Hash.equal);
-
+        private var tweetMap = HashMap.HashMap<Nat32, Tweet>(1, Hash.equal, Hash.hash);
 
         /**
         * global tweet id 
@@ -29,14 +29,16 @@ module{
             topic : Text,
             time : Text,
             owner : Principal){
+                var zero = Nat32.fromNat(0);
+                var tempArray : [Nat32] = [];
                 tweetMap.put({
                     tid = tid;
                     content = content;
                     topic = topic;
                     time = time;
                     owner = owner;
-                    comment = {0, [""]};
-                    like = {0, [owner]};
+                    comment = {zero; []};
+                    like = {zero; []};
                 });
                 tid += 1;
         };
@@ -44,10 +46,10 @@ module{
         /**
         * delete tweet from tweet map
         * @param tid : user's Principal
-        * @return ?bool : true -> successful, false : no such tweet
+        * @return ?Bool : true -> successful, false : no such tweet
         */
         public func deleteTweet(
-            tid : Nat32) : bool{
+            tid : Nat32) : Bool{
                 switch(tweetMap.remove(twitterId)){
                     case(?t) { true };
                     case(_){ false };
@@ -61,7 +63,7 @@ module{
         * @param tweet : Tweet 
         * @return ?TID : TID or null
         */
-        public func changeTweet(tid : Nat32, newTweet : Tweet) : bool{
+        public func changeTweet(tid : Nat32, newTweet : Tweet) : Bool{
             switch(tweetMap.replace(tid, newTweet)){
                 case(?tweet){
                     true

@@ -1,7 +1,9 @@
-import TweetDB "./Database/TweetDB";
+//import TweetDB "./Database/TweetDB";
+import UserDB "./Database/UserDB";
 
 actor DTwitter{
-    private tdb = TweetDB.TweetDB();
+    //private var tdb = TweetDB.TweetDB();
+    private var userDB = UserDB.userDB;
 
     /**
     * create tweet

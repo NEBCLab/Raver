@@ -7,15 +7,15 @@ module {
     
     //to do
     public type Follower = {
-        followerNumber ： Nat32;
+        followerNumber : Nat32;
         followerList : [Principal];
-    }； 
+    };
 
     //to do : attention
 
     //user Profile
     public type User = {
         uid : UID;
-        uname ： UName;
+        uname : UName;
     };
 };

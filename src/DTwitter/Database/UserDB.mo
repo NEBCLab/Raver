@@ -116,7 +116,6 @@ module{
             }
         };
 
-
         /**
         * get user's all tweet id
         * @param uid : user's principal

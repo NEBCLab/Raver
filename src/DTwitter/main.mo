@@ -1,7 +1,6 @@
-//import TweetDB "./Database/TweetDB";
 import UserDB "./Database/UserDB";
-//import TweetDB "./Database/TweetDB";
-//import Tweet "./Module/Tweet";
+import TweetDB "./Database/TweetDB";
+import Tweet "./Module/Tweet";
 import User "./Module/User";
 import Error "mo:base/Error";
 
@@ -73,6 +72,28 @@ actor DTwitter{
     // public shared(msg) func getUserAllTweets() : async [Tweet]{
     //     []
     // };
+
+    /**
+    *{
+                    tid = tid;
+                    content = content;
+                    topic = topic;
+                    time = time;
+                    owner = owner;
+                    comment = {
+                        commentNumber = Nat32.fromNat(0); 
+                        commentList = [];
+                    };
+                    like = {
+                        likeNumber = Nat32.fromNat(0); 
+                        likeList = [];
+                    };
+                }
+                                var nulArray : [Like]= [];
+                var tempArray : [Nat32] = [];
+    */
+
+
 
 
 

@@ -19,6 +19,7 @@ module {
         commentNumber : Nat32;
         commentList : [Text];
     };
+
     //tweet like
     public type Like = {
         likeNumber : Nat32;

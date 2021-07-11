@@ -76,7 +76,7 @@ module{
 
         /**
         * @param uid : user's principal
-        * @return ?User : if user existt
+        * @return ?User : if user existd
         */
         public func getUserProfile(uid : Principal) : ?User{
             switch(userDB.get(uid)){
@@ -86,7 +86,7 @@ module{
         };
 
         /**private function : is user is existed**/
-        private func isExist(uid : Principal) : Bool{
+        public func isExist(uid : Principal) : Bool{
             switch(userDB.get(uid)){
                 case(?user){ true };
                 case(_){ false };

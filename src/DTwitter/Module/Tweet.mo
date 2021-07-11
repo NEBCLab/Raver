@@ -14,17 +14,6 @@ module {
     public type Time = Text;
     //tweet owner
     public type Owner = Principal;
-    //tweet comment
-    public type Comment = {
-        commentNumber : Nat8;
-        commentList : [Text];
-    };
-
-    //tweet like
-    public type Like = {
-        likeNumber : Nat8;
-        likeList : [Principal];
-    };
 
     public type Tweet = {
         tid : Nat32;
@@ -32,6 +21,9 @@ module {
         topic : Text;
         time : Text;
         owner : Principal;
+        //just beginning, should be changed
+        likeNumber : Nat8;
+        commentNumber : Nat8;
         //todo
         //visiable
     };

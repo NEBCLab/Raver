@@ -47,10 +47,11 @@ actor DTwitter{
     * @param uname : Text new user name
     * @return successful -> true; failed : false
     */
-    public shared(msg) func changeUserProfile(uname : Text) : async Bool{
+    public shared(msg) func changeUserProfile(uname : Text, avatarimg : Text) : async Bool{
         userDB.changeUserProfile(msg.caller, {
             uid = msg.caller;
             uname = uname;
+            avatarimg = avatarimg;
         })
     };
     
@@ -114,56 +115,47 @@ actor DTwitter{
         tweetDB.reTweet(tid, msg.caller);
     };
 
-    public func likeTweet(tid : Nat32) : async Bool{
-        tweetDB.likeTweet()
-    };
-
-    public func cancelLike(tid : Nat32) : async Bool{
-        tweetDB.cancelLike()
-    };
-
     /*
     * if tweet is existed
     * @param tid tweet id
     * @reutrn existed or do not exist
     */
     public query func isExist(tid : Nat32) : async Bool{
-        tweetDB.isExist(tid)
+        tweetDB.isTweetExist(tid)
     };
 
     public shared(msg) func deleteTweet(tid : Nat32) : async Bool{
-        tweetDB.deleteTweet(msg.caller)
+        tweetDB.deleteTweet(msg.caller, tid)
     };
 
-    public shared(msg) func changeTweet(tid : Nat32, topic : Text, content : Text, time : Text) : async Bool{
-        let oldTweet = switch(tweetDB.getTweetById(tid)){
+    public shared(msg) func changeTweet(tid : Nat32, topic : Text, content : Text, time : Text) : async Bool{ 
+        switch(tweetDB.getTweetById(tid)){
             case(null) { return false; };
-            case(?t) { t };
+            case(?t) {
+                assert(t.owner == msg.caller);
+            };
         };
-        assert(msg.caller == t.owner);
         tweetDB.changeTweet(tid, {
             tid = tid;
             topic = topic;
             content = content;
             time = time;
             owner = msg.caller;
-            likeNumber = oldTweet.likeNumber;
-            commentNumber = oldTweet.commentNumber;
         })
     };
 
     public query func getTopicAllTweet(topic : Text) : async [Nat32]{
-        switch(findTweetByTopic(topic)){
+        switch(tweetDB.findTweetByTopic(topic)){
             case(null){ [] };
             case(?array){ array };
         }
     };
 
-    public shared(msg) func likeTweet(tid) : async Bool{
+    public shared(msg) func likeTweet(tid : Nat32) : async Bool{
         tweetDB.likeTweet(tid)
     };
 
-    public shared(msg) func cancelLike(tid) : async Bool{
+    public shared(msg) func cancelLike(tid : Nat32) : async Bool{
         tweetDB.cancelLike(tid)
     };
 };

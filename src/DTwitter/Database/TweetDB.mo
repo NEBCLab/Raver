@@ -32,6 +32,17 @@ module{
         private var topicTweet = HashMap.HashMap<Text, [Nat32]>(1, Text.equal, Text.hash);
 
         /**
+        * like map
+        */
+        private var likeMap = HashMap.HashMap<Nat32, Nat8>(1, Hash.equal, tools.hash);
+
+        /**
+        * comment map
+        */
+        private var commentMap = HashMap.HashMap<Nat32, Nat8>(1, Hash.equal, tools.hash);
+
+
+        /**
         * 
         */
         //private var tweetLike = HashMap.HashMap<Nat32, List<Nat32>>();
@@ -50,8 +61,6 @@ module{
                 topic = topic;
                 time = time;
                 owner = owner;
-                likeNumber = Nat8.fromNat(0);
-                commentNumber = Nat8.fromNat(0);
             };
             tweetMap.put(tid, tweet);
             addTopicTweet(tweet.topic, tid);
@@ -65,7 +74,7 @@ module{
         * @param tid : tweet tid
         * @return existed true , not existed false
         */
-        public func isExist(tid : Nat32) : Bool{
+        public func isTweetExist(tid : Nat32) : Bool{
             switch(tweetMap.get(tid)){
                 case(null) { false };
                 case(?t) { true };
@@ -157,28 +166,36 @@ module{
         * @param 
         */
         public func likeTweet(tid : Nat32) : Bool{
-            switch(tweetMap.get(tid)){
-                case( null ){ false };
-                case( ?t ) { 
-                    let likeNumber = t.likeNumber + 1;
-                    t.likeNumber = likeNumber; 
-                    ignore tweetMap.replace(tid, t); 
-                    true
+            if(isTweetExist(tid)){
+                switch(likeMap.get(tid)){
+                    case(null){
+                        likeMap.put(tid, 1);
+                    };
+                    case(?number){
+                        ignore likeMap.replace(tid, number+1);
+                    };
                 };
+                true
+            }else{
+                false
             }
         };
 
         //TODO 
         //uid : Principal
         public func cancelLike(tid : Nat32) : Bool{
-            switch(tweetMap.get(tid)){
-                case( null ){ false };
-                case( ?t) { 
-                    let likeNumber = t.likeNumber - 1; 
-                    t.likeNumber = likeNumber;
-                    ignore tweetMap.replace(tid, t); 
-                    true
+            if(isTweetExist(tid)){
+                switch(likeMap.get(tid)){
+                    case(null){
+                        likeMap.put(tid, 1);
+                    };
+                    case(?number){
+                        ignore likeMap.replace(tid, number-1);
+                    };
                 };
+                true
+            }else{
+                false
             }
         };
 
@@ -201,8 +218,8 @@ module{
             switch(topicTweet.get(topic)){
                 case(null){ topicTweet.put(topic, [tid]) };
                 case(?array){
-                    let array = Array.append(array, [tid]);
-                    ignore topicTweet.replace(topic, array);
+                    var newArray = Array.append(array, [tid]);
+                    ignore topicTweet.replace(topic, newArray);
                 };
             }
         };

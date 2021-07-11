@@ -22,8 +22,6 @@ module {
         time : Text;
         owner : Principal;
         //just beginning, should be changed
-        likeNumber : Nat8;
-        commentNumber : Nat8;
         //todo
         //visiable
     };

@@ -5,7 +5,8 @@ module {
     public type UID = Principal;
     // user name
     public type UName = Text;
-    
+    // avatar img url
+    public type Avatarimg = Text;
     //to do
     public type Follower = {
         followerNumber : Nat32;
@@ -18,5 +19,6 @@ module {
     public type User = {
         uid : UID;
         uname : UName;
+        avatarimg : Avatarimg;
     };
 };

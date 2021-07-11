@@ -16,10 +16,11 @@ actor DTwitter{
     * @pararm uname ; user name 
     * @return successful -> true; failed : false
     */
-    public shared(msg) func addUser(uname : Text) : async Bool{
+    public shared(msg) func addUser(uname : Text, avatarimg: Text) : async Bool{
         userDB.addUser({
             uid = msg.caller;
             uname = uname;
+            avatarimg = avatarimg;
         })
     };
 

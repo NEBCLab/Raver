@@ -125,11 +125,11 @@ module{
         * @param tweet : Tweet 
         * @return ?TID : TID or null
         */
-        public func findTweetByTopic(topic : Text) : ?[Tweet]{
+        public func findTweetByTopic(topic : Text) : ?[Nat32]{
             var array : [Tweet] = [];
             for((tid,tweet) in tweetMap.entries()){
                 if(tweet.topic == topic){
-                    array := Array.append(array, [tweet]);
+                    array := Array.append(array, [tid]);
                 }
             };
             ?array
@@ -143,19 +143,25 @@ module{
         };
 
         /**
-        * create tweet and put tweet into tweet map
-        * @param uid : user's Principal
-        * @param tweet : Tweet 
-        * @return ?TID : TID or null
-        
-        public func getMyTweets(uid : Principal, userDB : userDB) : ?[Tweet]{
-            
-        };
+        * @return the lastest tid
         */
+        public func getLastestTweetId() : Nat32{
+            tid
+        };
 
+        public func likeTweet(tid : Nat32, ) : Bool{
 
+        };
 
+        public func cancelLike(tid : Nat32, uid : Principal) : Bool{
 
+        };
+
+        public func getTweetLikeUsers() : ?[Nat32]{
+
+        };
+
+        public func getTweetComment() : {};
 
 
 

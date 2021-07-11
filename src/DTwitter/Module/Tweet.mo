@@ -16,13 +16,13 @@ module {
     public type Owner = Principal;
     //tweet comment
     public type Comment = {
-        commentNumber : Nat32;
+        commentNumber : Nat8;
         commentList : [Text];
     };
 
     //tweet like
     public type Like = {
-        likeNumber : Nat32;
+        likeNumber : Nat8;
         likeList : [Principal];
     };
 
@@ -32,8 +32,6 @@ module {
         topic : Text;
         time : Text;
         owner : Principal;
-        comment : Comment;
-        like : Like;
         //todo
         //visiable
     };

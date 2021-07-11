@@ -21,6 +21,7 @@ module {
         topic : Text;
         time : Text;
         owner : Principal;
+        url : Text;
         //just beginning, should be changed
         //todo
         //visiable

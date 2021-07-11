@@ -54,7 +54,7 @@ module{
         * @param tweet : Tweet 
         * @return ?TID : TID or null
         */
-        public func createTweet(topic : Text, content : Text, time : Text, owner : Principal) : Bool{
+        public func createTweet(topic : Text, content : Text, time : Text, owner : Principal, url : Text) : Bool{
             let tweet : Tweet = {
                 tid = tid;
                 content = content;

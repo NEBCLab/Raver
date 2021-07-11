@@ -73,8 +73,8 @@ actor DTwitter{
     * @param time : Text -> send tweet time
     * @return bool : if add tweet successfully
     */
-    public shared(msg) func addTweet(topic : Text, content : Text, time : Text) : async Bool{
-        tweetDB.createTweet(topic, content, time, msg.caller)
+    public shared(msg) func addTweet(topic : Text, content : Text, time : Text, url : Text) : async Bool{
+        tweetDB.createTweet(topic, content, time, msg.caller, url)
     };
 
     //is Existed

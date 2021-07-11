@@ -61,6 +61,7 @@ module{
                 topic = topic;
                 time = time;
                 owner = owner;
+                url = url;
             };
             tweetMap.put(tid, tweet);
             addTopicTweet(tweet.topic, tid);

@@ -128,7 +128,7 @@ actor DTwitter{
         tweetDB.deleteTweet(msg.caller, tid)
     };
 
-    public shared(msg) func changeTweet(tid : Nat32, topic : Text, content : Text, time : Text) : async Bool{ 
+    public shared(msg) func changeTweet(tid : Nat32, topic : Text, content : Text, time : Text, url : Text) : async Bool{ 
         switch(tweetDB.getTweetById(tid)){
             case(null) { return false; };
             case(?t) {
@@ -141,6 +141,7 @@ actor DTwitter{
             content = content;
             time = time;
             owner = msg.caller;
+            url = url;
         })
     };
 

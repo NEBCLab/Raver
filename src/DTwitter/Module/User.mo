@@ -7,14 +7,6 @@ module {
     public type UName = Text;
     // avatar img url
     public type Avatarimg = Text;
-    //to do
-    public type Follower = {
-        followerNumber : Nat32;
-        followerList : [Principal];
-    };
-
-    //to do : attention
-
     //user Profile
     public type User = {
         uid : UID;

@@ -4,6 +4,8 @@ import HashMap "mo:base/HashMap";
 import Array "mo:base/Array";
 import Hash "mo:base/Hash";
 import Principal "mo:base/Principal";
+import List "mo:base/List";
+
 
 module{
     type User = User.User;
@@ -14,6 +16,11 @@ module{
         private var userDB = HashMap.HashMap<Principal, User>(1, Principal.equal, Principal.hash);
         // uid -> tweets tid
         private var userTweet = HashMap.HashMap<Principal, [Nat32]>(1, Principal.equal, Principal.hash);
+        // follower : user uid -> follower uid List
+        private var follower = HashMap.HashMap<Principal, List.List<Principal>>(1, Principal.equal, Principal.hash);
+        // follow user : user uid -> follow uid List
+        private var follow = HashMap.HashMap<Principal, List.List<Principal>>(1, Principal.equal, Principal.hash);
+
 
         /**
         * @param user : User
@@ -145,13 +152,90 @@ module{
             }
         };
 
+        /**
+        * add follower
+        * @param user : followed user principal
+        * @param follower : follower user Principal 
+        */
+        public func addFollower(user : Principal, follower_user : Principal) : Bool{
+            assert(isExist(user));
+            assert(isExist(follower_user));
+            switch(follower.get(user)){
+                case(null){ 
+                    follower.put(user, ?(follower_user, null));
+                    ignore addFollow(user, follower_user);
+                };  
+                case(?list){
+                    var newList = List.push<Principal>(follower_user, list);
+                    ignore follower.replace(user, newList);
+                    ignore addFollow(user, follower_user);
+                };
+            };
+            true
+        };
+
+        /**
+        * attention people
+        */
+        public func addFollow(user : Principal, follower_user : Principal) : Bool{
+            assert(isExist(user));
+            assert(isExist(follower_user));
+            switch(follow.get(follower_user)){
+                case(null){
+                    follow.put(follower_user, ?(user, null));
+                    ignore addFollower(user, follower_user);
+                };
+                case(?list){
+                    var newList = List.push<Principal>(user, list);
+                    ignore follow.replace(follower_user, newList);
+                    ignore addFollower(user, follower_user);
+                };
+            };
+            true
+        };
+
+        /**
+        * get user follower
+        * @param uid : user principal
+        * @return [Principal] or null
+        */
+        public func getFollower(uid : Principal) : ?[Principal]{
+            switch(follower.get(uid)){
+                case(null) { null };
+                case(?list){
+                    ?List.toArray<Principal>(list)
+                };
+            };
+        };
+
+        /**
+        * 
+        */
+        public func getFollow(uid : Principal) : ?[Principal]{
+            switch(follow.get(uid)){
+                case(null){ null };
+                case(?list){
+                    ?List.toArray<Principal>(list)
+                };
+            };
+        };
 
         /**TODO List**/
-        /**add follower**/
-
-
-
-
+        // public func deleteFollow(user : Principal, followUser : Principal) : Bool{
+        //     assert(ifUserExisted(user));
+        //     assert(ifUserExisted(followUser));
+        //     switch(follow.get(user)){
+        //         case(null){ false };
+        //         case(?list){
+        //             switch(list.find<Principal>(followUser)){
+        //                 case(null) { false };
+        //                 case(?user){
+                            
+        //                 }
+        //             };
+        //         };
+        //     };
+        // };
 
 
     };

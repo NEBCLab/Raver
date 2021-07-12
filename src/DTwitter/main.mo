@@ -152,11 +152,50 @@ actor DTwitter{
         }
     };
 
+    /**
+    * @param tid : tweet id : Nat32 
+    */
     public shared(msg) func likeTweet(tid : Nat32) : async Bool{
         tweetDB.likeTweet(tid)
     };
 
+
+    /**
+    * @param tid : tweet id : Nat32 
+    */
     public shared(msg) func cancelLike(tid : Nat32) : async Bool{
         tweetDB.cancelLike(tid)
     };
+
+    /**
+    * get user attention user
+    * @param msg
+    * @param uid : user principal
+    * @return [Principal] user followed by user  
+    */
+    public shared(msg) func getFollow(uid : Principal) : async [Principal]{
+        switch(userDB.getFollow(msg.caller)){
+            case(null){ throw Error.reject("no such user") };
+            case(?array) { array };
+        };
+    };
+
+    /**
+    * get user follower
+    * @param msg
+    * @param uid : user principal
+    * @return [Principal] user followed by user  
+    */
+    public shared(msg) func getFollower(uid : Principal) : async [Principal]{
+        switch(userDB.getFollower(msg.caller)){
+            case(null){ throw Error.reject("no such user") };
+            case(?array) { array };
+        };
+    };
+
+    
+
+
+
+
 };

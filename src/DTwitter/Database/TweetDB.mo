@@ -54,18 +54,23 @@ module{
         * @param tweet : Tweet 
         * @return ?TID : TID or null
         */
-        public func createTweet(topic : Text, content : Text, time : Text, owner : Principal, url : Text) : Bool{
+        public func createTweet(topic : Text, content : Text, time : Text, uid : Principal, url : Text) : Bool{
             let tweet : Tweet = {
                 tid = tid;
                 content = content;
                 topic = topic;
                 time = time;
-                owner = owner;
+                user = switch(userDB.get(uid)){
+                    case(null){return false;};
+                    case(?user){
+                        user
+                    };
+                };
                 url = url;
             };
             tweetMap.put(tid, tweet);
             addTopicTweet(tweet.topic, tid);
-            ignore userDB.addTweet(tweet.owner, tid);
+            ignore userDB.addTweet(tweet.user.uid, tid);
             tid += 1;
             true
         };
@@ -92,9 +97,9 @@ module{
                 case (null) { return false };
                 case (?t) { t };
             };
-            assert(oper_ == tweet.owner);
+            assert(oper_ == tweet.user.uid);
             deleteTopicTweet(tweet.topic, tid);
-            switch(tweetMap.remove(tid), userDB.deleteUserTweet(tweet.owner, tid)){
+            switch(tweetMap.remove(tid), userDB.deleteUserTweet(tweet.user.uid, tid)){
                 case(?t, true) { true };
                 case(_){ false };
             };
@@ -132,7 +137,6 @@ module{
         * @return ?TID : TID or null
         */
         public func findTweetByTopic(topic : Text) : ?[Nat32]{
-            
             topicTweet.get(topic)
         };
 

@@ -126,6 +126,33 @@ actor DTwitter{
         }
     };
 
+
+    /**
+    * @param number : Nat32 -> [Tweet] size <= 5
+    */
+    public shared(msg) func getUserOlderFiveTweets(number : Nat32) : async [Tweet]{
+        switch(userDB.getUserAllTweets()){
+            case(null) { [] };
+            case(?tids){
+                if(number >= tids.size()){
+                    return [];
+                }else{
+                    var i = 0;
+                    var tempArray : [Tweet] = [];
+                    while((number + i < tids.size() -1) & i <= 5){
+                        var tempTweet = switch(tweetDB.get(number  + i)){
+                            case(?tweet){ tweet };
+                            case(_) { throw Error.reject("no tweet") };
+                        };
+                        tempArray := Array.append(tempArray, [tempTweet]);
+                        i += 1;
+                    };
+                    tempArray
+                }
+            };
+        };
+    };
+
     /**
     * get tweet by tid
     * @param tid : tweet id
@@ -167,7 +194,7 @@ actor DTwitter{
         switch(tweetDB.getTweetById(tid)){
             case(null) { return false; };
             case(?t) {
-                assert(t.owner == msg.caller);
+                assert(t.user.uid == msg.caller);
             };
         };
         tweetDB.changeTweet(tid, {
@@ -175,7 +202,10 @@ actor DTwitter{
             topic = topic;
             content = content;
             time = time;
-            owner = msg.caller;
+            user = switch(userDB.get(owner)){
+                case(null) { return false; };
+                case(?user){ user };
+            };
             url = url;
         })
     };

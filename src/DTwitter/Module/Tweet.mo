@@ -1,7 +1,9 @@
 import HashMap "mo:base/HashMap";
 import Hash "mo:base/Hash";
+import User "./User";
 
 module {
+    type User = User.User;
     //Tweet ID
     public type TID = Nat32;
     //URL 
@@ -20,7 +22,7 @@ module {
         content : Text;
         topic : Text;
         time : Text;
-        owner : Principal;
+        user : User;
         url : Text;
         //just beginning, should be changed
         //todo

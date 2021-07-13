@@ -19,8 +19,7 @@ module{
         // follower : user uid -> follower uid List
         private var follower = HashMap.HashMap<Principal, List.List<Principal>>(1, Principal.equal, Principal.hash);
         // follow user : user uid -> follow uid List
-        private var follow = HashMap.HashMap<Principal, List.List<Principal>>(1, Principal.equal, Principal.hash);
-
+        private var follow = HashMap.HashMap<Principal, List.List<Principal>>(1, Principal.equal, Principal.hash);        
 
         /**
         * @param user : User
@@ -220,18 +219,20 @@ module{
             };
         };
 
+
         /**TODO List**/
+        /****/
         // public func deleteFollow(user : Principal, followUser : Principal) : Bool{
         //     assert(ifUserExisted(user));
         //     assert(ifUserExisted(followUser));
         //     switch(follow.get(user)){
         //         case(null){ false };
         //         case(?list){
-        //             switch(list.find<Principal>(followUser)){
+        //             switch(list.find<Principal>(list, )){
         //                 case(null) { false };
         //                 case(?user){
                             
-        //                 }
+        //                 };
         //             };
         //         };
         //     };

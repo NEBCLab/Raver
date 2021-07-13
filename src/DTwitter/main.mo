@@ -3,6 +3,7 @@ import TweetDB "./Database/TweetDB";
 import Tweet "./Module/Tweet";
 import User "./Module/User";
 import Error "mo:base/Error";
+import Array "mo:base/Array";
 
 actor DTwitter{
     type User = User.User;
@@ -10,6 +11,7 @@ actor DTwitter{
     //private var tdb = TweetDB.TweetDB();
     private var userDB = UserDB.userDB();
     private var tweetDB = TweetDB.tweetDB(userDB);
+
     /**
     * add user
     * @param msg : Internet Identity
@@ -30,11 +32,6 @@ actor DTwitter{
     * @return successful -> true; failed : false
     */
     public shared(msg) func deleteUser() : async Bool{
-        // switch(userDB.deleteUser(msg.caller)){
-        //     case( true ){ true };
-        //     //throw Error.reject()
-        //     case( false ){ }
-        // }
         userDB.deleteUser(msg.caller)
     };
 
@@ -88,6 +85,42 @@ actor DTwitter{
         switch(userDB.getUserAllTweets(msg.caller)){
             case ( null ){ [] };
             case (?array) { array };
+        }
+    };
+
+    public shared(msg) func getUserLastestTenTweets() : async [Tweet]{
+        var array = switch(userDB.getUserAllTweets(msg.caller)){
+            case ( null ){ [] };
+            case (?array) { array };
+        };
+        var tweets : [Tweet] = [];
+        var i : Nat = 0;
+        if(array.size() >= 10){
+            while(i < 10){
+                switch(tweetDB.getTweetById(array[array.size() - i])){
+                    case(null) {
+                        i += 1;
+                    };
+                    case(?tweet) { 
+                        i += 1;
+                        tweets := Array.append(tweets, [tweet]);
+                    };
+                };
+            };
+            tweets
+        }else{
+            while(i < array.size()){
+                switch(tweetDB.getTweetById(array[array.size() - i])){
+                    case(null) {
+                        i += 1;
+                    };
+                    case(?tweet) { 
+                        i += 1;
+                        tweets := Array.append(tweets, [tweet]);
+                    };
+                };
+            };
+            tweets
         }
     };
 
@@ -193,7 +226,12 @@ actor DTwitter{
         };
     };
 
-    
+
+    /** TODO**/
+    // public shared(msg) func deleteFollow() ： async Bool{};
+
+
+
 
 
 

@@ -74,8 +74,6 @@ actor DTwitter{
         tweetDB.createTweet(topic, content, time, msg.caller, url)
     };
 
-    //is Existed
-
     /**
     * get user's all tweet id
     * @param msg : msg
@@ -88,6 +86,10 @@ actor DTwitter{
         }
     };
 
+    
+    /*
+    * get user newest 10 tweets (<= 10)
+    */
     public shared(msg) func getUserLastestTenTweets() : async [Tweet]{
         var array = switch(userDB.getUserAllTweets(msg.caller)){
             case ( null ){ [] };
@@ -97,7 +99,7 @@ actor DTwitter{
         var i : Nat = 0;
         if(array.size() >= 10){
             while(i < 10){
-                switch(tweetDB.getTweetById(array[array.size() - i])){
+                switch(tweetDB.getTweetById(array[array.size() - i -1])){
                     case(null) {
                         i += 1;
                     };
@@ -110,7 +112,7 @@ actor DTwitter{
             tweets
         }else{
             while(i < array.size()){
-                switch(tweetDB.getTweetById(array[array.size() - i])){
+                switch(tweetDB.getTweetById(array[array.size() - i -1])){
                     case(null) {
                         i += 1;
                     };

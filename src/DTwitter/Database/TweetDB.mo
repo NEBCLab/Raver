@@ -14,6 +14,7 @@ module{
     type TID = Tweet.TID;
     type UserDB = UserDB.userDB;
 
+
     public class tweetDB(userDB : UserDB){        
         /**
         * global tweet id 
@@ -60,8 +61,8 @@ module{
                 content = content;
                 topic = topic;
                 time = time;
-                user = switch(userDB.get(uid)){
-                    case(null){return false;};
+                user = switch(userDB.getUserProfile(uid)){
+                    case(null){ return false; };
                     case(?user){
                         user
                     };

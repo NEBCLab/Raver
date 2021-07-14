@@ -1,9 +1,14 @@
 import HashMap "mo:base/HashMap";
 import Hash "mo:base/Hash";
-import User "./User";
+//import User "./User";
 
 module {
-    type User = User.User;
+    //type User = User.User;
+    private type User = {
+        uid : Principal;
+        uname : Text;
+        avatarimg : Text;
+    };
     //Tweet ID
     public type TID = Nat32;
     //URL 

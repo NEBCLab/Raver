@@ -4,11 +4,11 @@ import Tweet "./Module/Tweet";
 import User "./Module/User";
 import Error "mo:base/Error";
 import Array "mo:base/Array";
+import Nat32 "mo:base/Nat32";
 
 actor DTwitter{
     type User = User.User;
     type Tweet = Tweet.Tweet;
-    //private var tdb = TweetDB.TweetDB();
     private var userDB = UserDB.userDB();
     private var tweetDB = TweetDB.tweetDB(userDB);
 
@@ -131,16 +131,17 @@ actor DTwitter{
     * @param number : Nat32 -> [Tweet] size <= 5
     */
     public shared(msg) func getUserOlderFiveTweets(number : Nat32) : async [Tweet]{
-        switch(userDB.getUserAllTweets()){
+        switch(userDB.getUserAllTweets(msg.caller)){
             case(null) { [] };
             case(?tids){
-                if(number >= tids.size()){
+                var size = Nat32.fromNat(tids.size());
+                if(number >= size){
                     return [];
                 }else{
-                    var i = 0;
+                    var i : Nat32 = 0;
                     var tempArray : [Tweet] = [];
-                    while((number + i < tids.size() -1) & i <= 5){
-                        var tempTweet = switch(tweetDB.get(number  + i)){
+                    while((number + i < size -1) and (i < 5)){
+                        var tempTweet = switch(tweetDB.getTweetById(number  + i)){
                             case(?tweet){ tweet };
                             case(_) { throw Error.reject("no tweet") };
                         };
@@ -202,7 +203,7 @@ actor DTwitter{
             topic = topic;
             content = content;
             time = time;
-            user = switch(userDB.get(owner)){
+            user = switch(userDB.getUserProfile(msg.caller)){
                 case(null) { return false; };
                 case(?user){ user };
             };
@@ -261,11 +262,6 @@ actor DTwitter{
 
     /** TODO**/
     // public shared(msg) func deleteFollow() ： async Bool{};
-
-
-
-
-
 
 
 };

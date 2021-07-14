@@ -44,12 +44,6 @@ module{
 
 
         /**
-        * 
-        */
-        //private var tweetLike = HashMap.HashMap<Nat32, List<Nat32>>();
-
-
-        /**
         * put tweet into tweet map and topic tweet, user tweet map
         * @param uid : user's Principal
         * @param tweet : Tweet 
@@ -188,7 +182,7 @@ module{
         };
 
         //TODO 
-        //uid : Principal
+        // + uid : Principal
         public func cancelLike(tid : Nat32) : Bool{
             if(isTweetExist(tid)){
                 switch(likeMap.get(tid)){
@@ -205,6 +199,35 @@ module{
             }
         };
 
+        /**
+        * @param follow : user principal
+        * @param number : older number
+        */
+        public func getFollowFiveTweets(follow : Principal, number : Nat32) : [Tweet]{
+            var tweets = switch(userDB.getUserAllTweets(follow)){
+                case(null) { return []};
+                case(?t) { t }; 
+            };
+            var size : Nat32 = Nat32.fromNat(tweets.size()) - 1;
+            var i : Nat32 = 0;
+            var result : [Tweet] = [];
+            while((number < size - i) and (i <= 5)){
+                i += 1;
+                var tempT : Tweet = switch(getTweetById(tweets[Nat32.toNat(size - i - number)])){
+                    case(null){ return result; };
+                    case(?tweet) { tweet };
+                };
+                result := Array.append(result, [tempT]);
+            };
+            result
+        };
+
+        
+        
+        
+        
+        
+        
         //TODO
         // public func getTweetLikeUsers() : ?[Nat32]{
 
@@ -281,6 +304,7 @@ module{
                 addTopicTweet(newTopic, tid);
             }
         }
+        
 
 
     };

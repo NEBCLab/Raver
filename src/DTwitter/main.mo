@@ -99,7 +99,7 @@ actor DTwitter{
         var i : Nat = 0;
         if(array.size() >= 10){
             while(i < 10){
-                switch(tweetDB.getTweetById(array[array.size() - i -1])){
+                switch(tweetDB.getTweetById(array[array.size() - i - 1])){
                     case(null) {
                         i += 1;
                     };
@@ -138,10 +138,10 @@ actor DTwitter{
                 if(number >= size){
                     return [];
                 }else{
-                    var i : Nat32 = 0;
+                    var i : Nat32 = 1;
                     var tempArray : [Tweet] = [];
                     while((number + i < size -1) and (i < 5)){
-                        var tempTweet = switch(tweetDB.getTweetById(number  + i)){
+                        var tempTweet = switch(tweetDB.getTweetById(size - 1 - number - i)){
                             case(?tweet){ tweet };
                             case(_) { throw Error.reject("no tweet") };
                         };
@@ -153,6 +153,13 @@ actor DTwitter{
             };
         };
     };
+
+    /****/
+    public shared(msg) func getFollowFiveTweets(follow : Principal, number : Nat32) : async [Tweet]{
+        assert(userDB.isExist(follow));
+        tweetDB.getFollowFiveTweets(follow, number)
+    };
+
 
     /**
     * get tweet by tid

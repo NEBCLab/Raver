@@ -8,7 +8,7 @@ import Nat32 "mo:base/Nat32";
 
 actor DTwitter{
     type User = User.User;
-    type Tweet = Tweet.Tweet;
+    type Tweet = Tweet.showTweet;
     private var userDB = UserDB.userDB();
     private var tweetDB = TweetDB.tweetDB(userDB);
 
@@ -99,7 +99,7 @@ actor DTwitter{
         var i : Nat = 0;
         if(array.size() >= 10){
             while(i < 10){
-                switch(tweetDB.getTweetById(array[array.size() - i - 1])){
+                switch(tweetDB.getShowTweetById(array[array.size() - i - 1])){
                     case(null) {
                         i += 1;
                     };
@@ -112,7 +112,7 @@ actor DTwitter{
             tweets
         }else{
             while(i < array.size()){
-                switch(tweetDB.getTweetById(array[array.size() - i -1])){
+                switch(tweetDB.getShowTweetById(array[array.size() - i -1])){
                     case(null) {
                         i += 1;
                     };
@@ -141,7 +141,7 @@ actor DTwitter{
                     var i : Nat32 = 1;
                     var tempArray : [Tweet] = [];
                     while((number + i < size -1) and (i < 5)){
-                        var tempTweet = switch(tweetDB.getTweetById(size - 1 - number - i)){
+                        var tempTweet = switch(tweetDB.getShowTweetById(size - 1 - number - i)){
                             case(?tweet){ tweet };
                             case(_) { throw Error.reject("no tweet") };
                         };
@@ -167,7 +167,7 @@ actor DTwitter{
     * @return whrow Error or return tweet
     */
     public query func getTweetById(tid : Nat32) : async Tweet{
-        switch(tweetDB.getTweetById(tid)){
+        switch(tweetDB.getShowTweetById(tid)){
             case(null){
                 throw Error.reject("no such tweet or worng id")
             };
@@ -199,7 +199,7 @@ actor DTwitter{
     };
 
     public shared(msg) func changeTweet(tid : Nat32, topic : Text, content : Text, time : Text, url : Text) : async Bool{ 
-        switch(tweetDB.getTweetById(tid)){
+        switch(tweetDB.getShowTweetById(tid)){
             case(null) { return false; };
             case(?t) {
                 assert(t.user.uid == msg.caller);
@@ -210,10 +210,7 @@ actor DTwitter{
             topic = topic;
             content = content;
             time = time;
-            user = switch(userDB.getUserProfile(msg.caller)){
-                case(null) { return false; };
-                case(?user){ user };
-            };
+            owner = msg.caller;
             url = url;
         })
     };

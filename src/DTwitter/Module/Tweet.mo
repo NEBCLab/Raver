@@ -22,16 +22,27 @@ module {
     //tweet owner
     public type Owner = Principal;
 
+    //后续全部改成外键， tweet内容全部用数据库存着
     public type Tweet = {
+        tid : Nat32;
+        content : Text;
+        topic : Text;
+        time : Text;
+        // change to principal
+        owner : Principal;
+        url : Text;
+        //just beginning, should be changed
+        //todo
+        //visiable
+    };
+
+    public type showTweet = {
         tid : Nat32;
         content : Text;
         topic : Text;
         time : Text;
         user : User;
         url : Text;
-        //just beginning, should be changed
-        //todo
-        //visiable
     };
 
 

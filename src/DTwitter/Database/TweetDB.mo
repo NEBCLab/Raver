@@ -13,7 +13,7 @@ module{
     type Tweet = Tweet.Tweet;
     type TID = Tweet.TID;
     type UserDB = UserDB.userDB;
-
+    type showTweet = Tweet.showTweet;
 
     public class tweetDB(userDB : UserDB){        
         /**
@@ -42,7 +42,6 @@ module{
         */
         private var commentMap = HashMap.HashMap<Nat32, Nat8>(1, Hash.equal, tools.hash);
 
-
         /**
         * put tweet into tweet map and topic tweet, user tweet map
         * @param uid : user's Principal
@@ -55,17 +54,12 @@ module{
                 content = content;
                 topic = topic;
                 time = time;
-                user = switch(userDB.getUserProfile(uid)){
-                    case(null){ return false; };
-                    case(?user){
-                        user
-                    };
-                };
+                owner = uid;
                 url = url;
             };
             tweetMap.put(tid, tweet);
             addTopicTweet(tweet.topic, tid);
-            ignore userDB.addTweet(tweet.user.uid, tid);
+            ignore userDB.addTweet(tweet.owner, tid);
             tid += 1;
             true
         };
@@ -92,9 +86,9 @@ module{
                 case (null) { return false };
                 case (?t) { t };
             };
-            assert(oper_ == tweet.user.uid);
+            assert(oper_ == tweet.owner);
             deleteTopicTweet(tweet.topic, tid);
-            switch(tweetMap.remove(tid), userDB.deleteUserTweet(tweet.user.uid, tid)){
+            switch(tweetMap.remove(tid), userDB.deleteUserTweet(tweet.owner, tid)){
                 case(?t, true) { true };
                 case(_){ false };
             };
@@ -108,7 +102,7 @@ module{
         */
         public func changeTweet(tid : Nat32, newTweet : Tweet) : Bool{
             //change tweet topic
-            let oldTweet = switch(getTweetById(tid)){
+            let oldTweet = switch(getShowTweetById(tid)){
                 case(null) { return false; };
                 case(?t) { t };
             };
@@ -138,8 +132,23 @@ module{
         /**
         * get tweet by id
         */
-        public func getTweetById(tid : Nat32) : ?Tweet{
-            tweetMap.get(tid)
+        public func getShowTweetById(tid : Nat32) : ?showTweet{
+            switch(tweetMap.get(tid)){
+                case(null) { null };
+                case(?tweet) {
+                    ?{
+                        tid = tweet.tid;
+                        content = tweet.content;
+                        topic = tweet.topic;
+                        time = tweet.time;
+                        user = switch(userDB.getUserProfile(tweet.owner)){
+                            case(null){ return null};
+                            case(?user) { user };
+                        };
+                        url = tweet.url;
+                    }
+                };
+            }
         };
 
         /**
@@ -203,17 +212,18 @@ module{
         * @param follow : user principal
         * @param number : older number
         */
-        public func getFollowFiveTweets(follow : Principal, number : Nat32) : [Tweet]{
+        public func getFollowFiveTweets(follow : Principal, number : Nat32) : [showTweet]{
             var tweets = switch(userDB.getUserAllTweets(follow)){
                 case(null) { return []};
                 case(?t) { t }; 
             };
             var size : Nat32 = Nat32.fromNat(tweets.size()) - 1;
             var i : Nat32 = 0;
-            var result : [Tweet] = [];
+            var result : [showTweet] = [];
             while((number < size - i) and (i <= 5)){
                 i += 1;
-                var tempT : Tweet = switch(getTweetById(tweets[Nat32.toNat(size - i - number)])){
+                //get user old five tweets
+                var tempT : showTweet = switch(getShowTweetById(tweets[Nat32.toNat(size - i - number)])){
                     case(null){ return result; };
                     case(?tweet) { tweet };
                 };
@@ -221,12 +231,6 @@ module{
             };
             result
         };
-
-        
-        
-        
-        
-        
         
         //TODO
         // public func getTweetLikeUsers() : ?[Nat32]{
@@ -304,8 +308,6 @@ module{
                 addTopicTweet(newTopic, tid);
             }
         }
-        
-
 
     };
 };

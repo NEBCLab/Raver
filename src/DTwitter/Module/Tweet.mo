@@ -21,6 +21,7 @@ module {
     public type Owner = Principal;
 
     //后续全部改成外键， tweet内容全部用数据库存着
+    //存储的tweet 当前版本要将字段全部转换为相应数据库的主键
     public type Tweet = {
         tid : Nat32;
         content : Text;
@@ -34,6 +35,10 @@ module {
         //visiable
     };
 
+    /*
+    * 返回给用户的Tweet， 只作为返回值，不作为存储值
+    * tweet module : back to user 
+    */
     public type showTweet = {
         tid : Nat32;
         content : Text;

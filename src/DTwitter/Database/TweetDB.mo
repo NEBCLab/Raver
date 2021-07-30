@@ -190,6 +190,34 @@ module{
             result
         };
         
+        /*
+        * get user older five tweets
+        * 
+        */
+        public func getUserOlderFiveTweets(user : Principal, number : Nat32) : ?[Tweet]{
+            switch(userDB.getUserAllTweets(user)){
+                case(null) { [] };
+                case(?tids){
+                    var size = Nat32.fromNat(tids.size());
+                    if(number >= size){
+                        return [];
+                    }else{
+                        var i : Nat32 = 1;
+                        var tempArray : [Tweet] = [];
+                        while((number + i < size -1) and (i < 5)){
+                            var tempTweet = switch(tweetDB.getShowTweetById(size - 1 - number - i)){
+                                case(?tweet){ tweet };
+                                case(_) { return null; };
+                            };
+                            tempArray := Array.append(tempArray, [tempTweet]);
+                            i += 1;
+                        };
+                        tempArray
+                    }
+                };
+            }
+        };
+
         //TODO
         // public func getTweetLikeUsers() : ?[Nat32]{
 

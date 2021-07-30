@@ -205,7 +205,7 @@ actor DTwitter{
                 assert(t.user.uid == msg.caller);
             };
         };
-        tweetDB.changeTweet(tid, {
+        tweetDB.changeTweet(tid, Tweet {
             tid = tid;
             topic = topic;
             content = content;

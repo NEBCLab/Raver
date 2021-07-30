@@ -33,11 +33,6 @@ module{
         private var topicTweet = HashMap.HashMap<Text, [Nat32]>(1, Text.equal, Text.hash);
 
         /**
-        * like map
-        */
-        private var likeMap = HashMap.HashMap<Nat32, Nat8>(1, Hash.equal, tools.hash);
-
-        /**
         * comment map
         */
         private var commentMap = HashMap.HashMap<Nat32, Nat8>(1, Hash.equal, tools.hash);
@@ -169,44 +164,7 @@ module{
             userDB.addTweet(user, tid)
         };
 
-        /**
-        * add tweet like number
-        * @param tid : 
-        * @param 
-        */
-        public func likeTweet(tid : Nat32) : Bool{
-            if(isTweetExist(tid)){
-                switch(likeMap.get(tid)){
-                    case(null){
-                        likeMap.put(tid, 1);
-                    };
-                    case(?number){
-                        ignore likeMap.replace(tid, number+1);
-                    };
-                };
-                true
-            }else{
-                false
-            }
-        };
-
-        //TODO 
-        // + uid : Principal
-        public func cancelLike(tid : Nat32) : Bool{
-            if(isTweetExist(tid)){
-                switch(likeMap.get(tid)){
-                    case(null){
-                        likeMap.put(tid, 1);
-                    };
-                    case(?number){
-                        ignore likeMap.replace(tid, number-1);
-                    };
-                };
-                true
-            }else{
-                false
-            }
-        };
+    
 
         /**
         * @param follow : user principal

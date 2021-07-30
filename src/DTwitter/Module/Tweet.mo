@@ -11,8 +11,6 @@ module {
     };
     //Tweet ID
     public type TID = Nat32;
-    //URL 
-    //public type URL = Text;
     //Tweet content
     public type Content = Text;
     //Tweet topic
@@ -30,7 +28,7 @@ module {
         time : Text;
         // change to principal
         owner : Principal;
-        url : Text;
+        url : Text; //图床
         //just beginning, should be changed
         //todo
         //visiable

@@ -8,6 +8,7 @@ module {
     // avatar img url
     public type Avatarimg = Text;
     //user Profile
+
     public type User = {
         uid : UID;
         uname : UName;

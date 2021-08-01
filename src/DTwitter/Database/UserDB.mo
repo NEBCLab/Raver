@@ -15,7 +15,7 @@ module{
         // uid -> user profile
         private var userDB = HashMap.HashMap<Principal, User>(1, Principal.equal, Principal.hash);
         // uid -> tweets tid
-        private var userTweet = HashMap.HashMap<Principal, [Nat32]>(1, Principal.equal, Principal.hash);
+        private var userTweet = HashMap.HashMap<Principal, [Nat]>(1, Principal.equal, Principal.hash);
         // follower : user uid -> follower uid List
         private var follower = HashMap.HashMap<Principal, List.List<Principal>>(1, Principal.equal, Principal.hash);
         // follow user : user uid -> follow uid List
@@ -105,11 +105,11 @@ module{
         * @param uid : user principal
         * @param tid : tweet id
         */
-        public func addTweet(uid : Principal, tid : Nat32) : Bool{
+        public func addTweet(uid : Principal, tid : Nat) : Bool{
             if(isExist(uid)){
                 switch(userTweet.get(uid)){
                     case(?tweet){
-                        var tweetArray : [Nat32] = Array.append(tweet, [tid]);
+                        var tweetArray : [Nat] = Array.append(tweet, [tid]);
                         ignore userTweet.replace(uid, tweetArray);
                     };
                     case(_){
@@ -125,17 +125,17 @@ module{
         /**
         * get user's all tweet id
         * @param uid : user's principal
-        * @return user's tweet -> ?[Nat32]  : null || [Nat32]
+        * @return user's tweet -> ?[Nat]  : null || [Nat]
         */
-        public func getUserAllTweets(uid : Principal) : ?[Nat32]{
+        public func getUserAllTweets(uid : Principal) : ?[Nat]{
             userTweet.get(uid)
         };
 
         //TODO : tweet [] -> Tree
-        public func deleteUserTweet(uid : Principal, tid : Nat32) : Bool{
-            var newArray : [Nat32] = []; 
+        public func deleteUserTweet(uid : Principal, tid : Nat) : Bool{
+            var newArray : [Nat] = []; 
             if(isExist(uid)){
-                var tweet : [Nat32] = switch(userTweet.get(uid)){
+                var tweet : [Nat] = switch(userTweet.get(uid)){
                     case(null) { [] };
                     case(?array) { array };
                 };

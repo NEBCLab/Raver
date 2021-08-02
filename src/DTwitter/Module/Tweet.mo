@@ -10,7 +10,7 @@ module {
         avatarimg : Text;
     };
     //Tweet ID
-    public type TID = Nat32;
+    public type TID = Nat;
     //Tweet content
     public type Content = Text;
     //Tweet topic
@@ -23,7 +23,7 @@ module {
     //后续全部改成外键， tweet内容全部用数据库存着
     //存储的tweet 当前版本要将字段全部转换为相应数据库的主键
     public type Tweet = {
-        tid : Nat32;
+        tid : Nat;
         content : Text;
         topic : Text;
         time : Text;
@@ -40,7 +40,7 @@ module {
     * tweet module : back to user 
     */
     public type showTweet = {
-        tid : Nat32;
+        tid : Nat;
         content : Text;
         topic : Text;
         time : Text;

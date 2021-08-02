@@ -4,7 +4,7 @@ import Tweet "./Module/Tweet";
 import User "./Module/User";
 import Error "mo:base/Error";
 import Array "mo:base/Array";
-import Nat32 "mo:base/Nat32";
+import Nat "mo:base/Nat";
 
 actor DTwitter{
     type User = User.User;
@@ -77,9 +77,9 @@ actor DTwitter{
     /**
     * get user's all tweet id
     * @param msg : msg
-    * @return user's all tweet id array : [Nat32]
+    * @return user's all tweet id array : [Nat]
     */
-    public shared(msg) func getUserAllTweets() : async [Nat32]{
+    public shared(msg) func getUserAllTweets() : async [Nat]{
         switch(userDB.getUserAllTweets(msg.caller)){
             case ( null ){ [] };
             case (?array) { array };
@@ -128,17 +128,17 @@ actor DTwitter{
 
 
     /**
-    * @param number : Nat32 -> [Tweet] size <= 5
+    * @param number : Nat -> [Tweet] size <= 5
     */
-    public shared(msg) func getUserOlderFiveTweets(number : Nat32) : async [Tweet]{
+    public shared(msg) func getUserOlderFiveTweets(number : Nat) : async [Tweet]{
         switch(userDB.getUserAllTweets(msg.caller)){
             case(null) { [] };
             case(?tids){
-                var size = Nat32.fromNat(tids.size());
+                var size = Nat.fromNat(tids.size());
                 if(number >= size){
                     return [];
                 }else{
-                    var i : Nat32 = 1;
+                    var i : Nat = 1;
                     var tempArray : [Tweet] = [];
                     while((number + i < size -1) and (i < 5)){
                         var tempTweet = switch(tweetDB.getShowTweetById(size - 1 - number - i)){
@@ -155,7 +155,7 @@ actor DTwitter{
     };
 
     /****/
-    public shared(msg) func getFollowFiveTweets(follow : Principal, number : Nat32) : async [Tweet]{
+    public shared(msg) func getFollowFiveTweets(follow : Principal, number : Nat) : async [Tweet]{
         assert(userDB.isExist(follow));
         tweetDB.getFollowFiveTweets(follow, number)
     };
@@ -166,7 +166,7 @@ actor DTwitter{
     * @param tid : tweet id
     * @return whrow Error or return tweet
     */
-    public query func getTweetById(tid : Nat32) : async Tweet{
+    public query func getTweetById(tid : Nat) : async Tweet{
         switch(tweetDB.getShowTweetById(tid)){
             case(null){
                 throw Error.reject("no such tweet or worng id")
@@ -177,11 +177,11 @@ actor DTwitter{
         }
     };
 
-    public query func getLastestTweetId() : async Nat32{
+    public query func getLastestTweetId() : async Nat{
         tweetDB.getLastestTweetId()
     };
 
-    public shared(msg) func reTweet(tid : Nat32) : async Bool{
+    public shared(msg) func reTweet(tid : Nat) : async Bool{
         tweetDB.reTweet(tid, msg.caller);
     };
 
@@ -190,15 +190,15 @@ actor DTwitter{
     * @param tid tweet id
     * @reutrn existed or do not exist
     */
-    public query func isExist(tid : Nat32) : async Bool{
+    public query func isExist(tid : Nat) : async Bool{
         tweetDB.isTweetExist(tid)
     };
 
-    public shared(msg) func deleteTweet(tid : Nat32) : async Bool{
+    public shared(msg) func deleteTweet(tid : Nat) : async Bool{
         tweetDB.deleteTweet(msg.caller, tid)
     };
 
-    public shared(msg) func changeTweet(tid : Nat32, topic : Text, content : Text, time : Text, url : Text) : async Bool{ 
+    public shared(msg) func changeTweet(tid : Nat, topic : Text, content : Text, time : Text, url : Text) : async Bool{ 
         switch(tweetDB.getShowTweetById(tid)){
             case(null) { return false; };
             case(?t) {
@@ -215,27 +215,13 @@ actor DTwitter{
         })
     };
 
-    public query func getTopicAllTweet(topic : Text) : async [Nat32]{
+    public query func getTopicAllTweet(topic : Text) : async [Nat]{
         switch(tweetDB.findTweetByTopic(topic)){
             case(null){ [] };
             case(?array){ array };
         }
     };
 
-    /**
-    * @param tid : tweet id : Nat32 
-    */
-    public shared(msg) func likeTweet(tid : Nat32) : async Bool{
-        tweetDB.likeTweet(tid)
-    };
-
-
-    /**
-    * @param tid : tweet id : Nat32 
-    */
-    public shared(msg) func cancelLike(tid : Nat32) : async Bool{
-        tweetDB.cancelLike(tid)
-    };
 
     /**
     * get user attention user
@@ -267,5 +253,31 @@ actor DTwitter{
     /** TODO**/
     // public shared(msg) func deleteFollow() ： async Bool{};
 
+
+    /**
+    *The following part is like moudle-------------------like-------------------------
+    **/
+    public query func likeAmount(tid : Nat) : async Nat{
+        tweetDB.likeAmount(tid)
+    };
+
+    public shared(msg) func likeTweet(tid : Nat, uid : Principal) : async Bool{
+        tweetDB.likeTweet(tid, msg.caller)
+    };
+
+    public shared(msg) func cancelLike(tid : Nat, uid : Principal) : async Bool{
+        tweetDB.cancelLike(tid, msg.caller)
+    };
+
+    public query  func getTweetLikeUsers(tid : Nat) : async [Principal]{
+        switch(tweetDB.getTweetLikeUsers(tid)){
+            case(null){ throw Error.reject("no one has liked this tweet") };
+            case(?array) { array };
+        }
+    };
+
+    public query func isTweetLiked(tid : Nat, uid : Principal) : async Bool{
+        tweetDB.isTweetLiked(tid, uid)
+    };
 
 };

@@ -17,9 +17,8 @@ module{
     type UserDB = UserDB.userDB;
     type showTweet = Tweet.showTweet;
 
-
     //tweet databse control relation betweet tweets, other database storage data
-    public class tweetDB(userDB : UserDB, ){        
+    public class tweetDB(userDB : UserDB){        
         /**
         * global tweet id 
         * tid : Nat
@@ -50,6 +49,8 @@ module{
         private var commentMap = HashMap.HashMap<Nat, Nat8>(1, Nat.equal, Hash.hash);
 
         private var likeDB = LikeDB.likeDB();
+        
+        private var contentDB = ContentDB.ContentDB();
 
         /**
         * put tweet into tweet map and topic tweet, user tweet map

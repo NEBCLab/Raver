@@ -20,7 +20,11 @@ module{
         private var follower = HashMap.HashMap<Principal, List.List<Principal>>(1, Principal.equal, Principal.hash);
         // follow user : user uid -> follow uid List
         private var follow = HashMap.HashMap<Principal, List.List<Principal>>(1, Principal.equal, Principal.hash);        
+        // get user principal by tweet id
+        private var tweet_user = HashMap.HashMap<Nat, Principal>(1, Nat.equal, Hash.hash);
 
+
+//*******************************  User *******************************************
         /**
         * @param user : User
         */
@@ -96,9 +100,10 @@ module{
             switch(userDB.get(uid)){
                 case(?user){ true };
                 case(_){ false };
-            }
+-            }
         };
 
+/****************************  Tweet *********************************************************
 
         /**
         * append tweet id to user profile
@@ -111,9 +116,11 @@ module{
                     case(?tweet){
                         var tweetArray : [Nat] = Array.append(tweet, [tid]);
                         ignore userTweet.replace(uid, tweetArray);
+                        putTweetUser(tid, uid);
                     };
                     case(_){
                         userTweet.put(uid, [tid]);
+                        putTweetUser(tid, uid);
                     }
                 };
                 true
@@ -145,11 +152,31 @@ module{
                     }
                 };
                 ignore userTweet.replace(uid, newArray);
+                deleteTweetUser(tid, uid);
                 true
             }else{
                 false
             }
         };
+
+        /** tweet_user database **/
+        private func putTweetUser(tid : Nat, uid : Principal){
+            tweet_user.put(tid, uid);
+        };
+
+        /** tweet_user database **/
+        private func deleteTweetUser(tid : Nat){
+            tweet_user.delete(tid);
+        };
+
+        // get tweet's user principal(uid)
+        public func getUidByTid(tid : Nat) : ?Principal{
+            tweet_user.get(tid)
+        };
+
+
+//***********************************************************************
+                            /** TODO **/
 
         /**
         * add follower
@@ -193,50 +220,8 @@ module{
             true
         };
 
-        /**
-        * get user follower
-        * @param uid : user principal
-        * @return [Principal] or null
-        */
-        public func getFollower(uid : Principal) : ?[Principal]{
-            switch(follower.get(uid)){
-                case(null) { null };
-                case(?list){
-                    ?List.toArray<Principal>(list)
-                };
-            };
-        };
-
-        /**
-        * 
-        */
-        public func getFollow(uid : Principal) : ?[Principal]{
-            switch(follow.get(uid)){
-                case(null){ null };
-                case(?list){
-                    ?List.toArray<Principal>(list)
-                };
-            };
-        };
 
 
-        /**TODO List**/
-        /****/
-        // public func deleteFollow(user : Principal, followUser : Principal) : Bool{
-        //     assert(ifUserExisted(user));
-        //     assert(ifUserExisted(followUser));
-        //     switch(follow.get(user)){
-        //         case(null){ false };
-        //         case(?list){
-        //             switch(list.find<Principal>(list, )){
-        //                 case(null) { false };
-        //                 case(?user){
-                            
-        //                 };
-        //             };
-        //         };
-        //     };
-        // };
 
 
     };

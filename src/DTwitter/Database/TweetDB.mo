@@ -15,7 +15,7 @@ module{
     type Tweet = Tweet.Tweet;
     type TID = Tweet.TID;
     type UserDB = UserDB.userDB;
-    type showTweet = Tweet.showTweet;
+    type ShowTweet = Tweet.showTweet;
 
     //tweet databse control relation betweet tweets, other database storage data
     public class tweetDB(userDB : UserDB){        
@@ -30,49 +30,27 @@ module{
         */
         private var tweetMap = HashMap.HashMap<Nat, Tweet>(1, Nat.equal, Hash.hash);
 
-        /**
-        * topic
-        */
-        private var topicTweet = HashMap.HashMap<Text, [Nat]>(1, Text.equal, Text.hash);
+        //comment database
+        private var commentDB = CommentDB.commentDB();
 
-        /**
-        * Content map
-        * every Content is a tweet
-        * @param Contented tweet tid -> Content tweet id set
-        */
-        private var commentSet = HashMap.HashMap<Nat,  TrieSet.Set<Nat>>(1, Nat.equal, Hash.hash);
-
-        /*
-        * Content number map
-        * tweet TID -> tweet Content number
-        */
-        private var commentMap = HashMap.HashMap<Nat, Nat8>(1, Nat.equal, Hash.hash);
-
+        //like databse
         private var likeDB = LikeDB.likeDB();
         
+        // tweet content
         private var contentDB = ContentDB.ContentDB();
 
-        /**
-        * put tweet into tweet map and topic tweet, user tweet map
-        * @param uid : user's Principal
-        * @param tweet : Tweet 
-        * @return ?TID : TID or null
-        */
-        public func createTweet(topic : Text, content : Text, time : Text, uid : Principal, url : Text) : Bool{
-            let tweet : Tweet = {
-                tid = tid;
-                content = content;
-                topic = topic;
-                time = time;
-                owner = uid;
-                url = url;
-            };
+        public func createTweet(text : Text, time : Text, uid : Principal, url : Text) : Bool{
+            let tid = increaseTID();
+            let tweet : Tweet = { tid = tid };
+            let content = contentDB.make(text, time, url);
             tweetMap.put(tid, tweet);
-            addTopicTweet(tweet.topic, tid);
-            ignore userDB.addTweet(tweet.owner, tid);
-            tid += 1;
-            true
+            contentDB.add(tid, content);
+            userDB.addTweet(uid, tid);
+            //comment
+            //likeDB
+            //topicDB.addTopicTweet()
         };
+
 
         /**
         * if tweet is existed
@@ -82,7 +60,7 @@ module{
         public func isTweetExist(tid : Nat) : Bool{
             switch(tweetMap.get(tid)){
                 case(null) { false };
-                case(?t) { true };
+                case(()) { true };
             }
         };
 
@@ -92,16 +70,21 @@ module{
         * @return ?Bool : true -> successful, false : no such tweet
         */
         public func deleteTweet(oper_ : Principal, tid : Nat) : Bool{
-            let tweet = switch(tweetMap.get(tid)){
-                case (null) { return false };
-                case (?t) { t };
-            };
-            assert(oper_ == tweet.owner);
-            deleteTopicTweet(tweet.topic, tid);
-            switch(tweetMap.remove(tid), userDB.deleteUserTweet(tweet.owner, tid)){
-                case(?t, true) { true };
-                case(_){ false };
-            };
+            switch(userDB.getUidByTid(tid)){
+                case null { false };
+                case (?uid){
+                    if(uid == oper_){
+                        tweetMap.delete(tid);
+                        userDB.deleteTweet(uid, tid);
+                        contentDB.delete(tid);
+                        //likeDB.delete(tid);
+                        commentDB.delete(tid);
+                        //topic
+                    }else{
+                        false
+                    }
+                }
+            }
         };
 
         /**
@@ -110,54 +93,44 @@ module{
         * @param tweet : Tweet 
         * @return ?TID : TID or null
         */
-        public func changeTweet(tid : Nat, newTweet : Tweet) : Bool{
+        public func changeTweet(tid : Nat, text : Text, time : Text, uid : Principal, url : Text) : Bool{
             //change tweet topic
             let oldTweet = switch(getShowTweetById(tid)){
+                // ERROR WORNING
                 case(null) { return false; };
                 case(?t) { t };
             };
-            if(newTweet.topic != oldTweet.topic){
-                changeTweetTopic(tid, newTweet.topic);
-            };
-            switch(tweetMap.replace(tid, newTweet)){
-                case(?tweet){
-                    true
-                };
-                case (_){
-                    false
-                };
-            }
+
+            contentDB.replace(tid, contentDB.make())
+
+            
         };
 
-        /**
-        * find same topic tweet id
-        * @param uid : user's Principal
-        * @param tweet : Tweet 
-        * @return ?TID : TID or null
-        */
-        public func findTweetByTopic(topic : Text) : ?[Nat]{
-            topicTweet.get(topic)
-        };
 
         /**
         * get tweet by id
         */
         public func getShowTweetById(tid : Nat) : ?showTweet{
-            switch(tweetMap.get(tid)){
-                case(null) { null };
-                case(?tweet) {
-                    ?{
-                        tid = tweet.tid;
-                        content = tweet.content;
-                        topic = tweet.topic;
-                        time = tweet.time;
-                        user = switch(userDB.getUserProfile(tweet.owner)){
-                            case(null){ return null};
-                            case(?user) { user };
-                        };
-                        url = tweet.url;
-                    }
+            if(isTweetExist(tid)){
+                let content = switch(contentDB.get(tid)){
+                        case null { "" };
+                        case (?text) { text };
                 };
+
+                ?{
+                    tid = tid;
+                    content = content.text;
+                    time = content.time;
+                    user =  switch(userDB.getUidByTid(tid)){
+                                case(null) { return null };
+                                case (?owner) { owner };
+                            };
+                    url = content.url;
+                    likeNumber = likeDB.likeAmount(tid);
+                    commentNumber = commentDB.getNumber(tid);
+                }
+            }else{
+                null
             }
         };
 
@@ -167,19 +140,6 @@ module{
         public func getLastestTweetId() : Nat{
             tid
         };
-
-        /**
-        * reTweet a tweet
-        * @param tid : Nat -> retweet tweet id
-        * @param 
-        * @return
-        * TODO : to save memory storage, retweet only need change the user
-        */
-        public func reTweet(tid : Nat, user : Principal) : Bool{
-            userDB.addTweet(user, tid)
-        };
-
-    
 
         /**
         * @param follow : user principal
@@ -233,79 +193,6 @@ module{
             }
         };
 
-        //TODO
-
-        /**comment**/
-        //public func getTweetComment() : {};
-
-        //TODO change tweet topic
-        //should change tweet storage data structure
-
-        /**
-        * @param topic : tweet topic
-        * @param tid : tweet tid
-        */
-        private func addTopicTweet(topic : Text, tid : Nat){
-            switch(topicTweet.get(topic)){
-                case(null){ topicTweet.put(topic, [tid]) };
-                case(?array){
-                    var newArray = Array.append(array, [tid]);
-                    ignore topicTweet.replace(topic, newArray);
-                };
-            }
-        };
-
-        public func getAllTopic() : [Text] {
-            var array : [Text] = [];
-            for((k,_) in topicTweet.entries()){
-                array := Array.append(array, [k]);
-            };
-            array
-        };
-
-        private func deleteTopic(topic : Text){
-            topicTweet.delete(topic);
-        };
-
-        /****/
-        private func deleteTopicTweet(topic : Text, tid : Nat){
-            var tempArray : [Nat] = [];
-            switch(topicTweet.get(topic)){
-                case(null) { () };
-                case(?array) {
-                    for(v in array.vals()){
-                        if(v != tid){
-                            tempArray := Array.append(tempArray, [v]);
-                        };
-                    };
-                    ignore topicTweet.replace(topic, tempArray);
-                };
-            };
-        };
-
-        /****/
-        private func ifTopicExist(topic : Text) : Bool{
-            for((k,_) in topicTweet.entries()){
-                if( k == topic){
-                    return true;
-                }
-            };
-            false
-        };
-
-        /****/
-        private func changeTweetTopic(tid : Nat, newTopic : Text){
-            if(ifTopicExist(newTopic)){
-                addTopicTweet(newTopic, tid);
-                let oldTopic = switch(tweetMap.get(tid)){
-                    case(null){""};
-                    case(?t){t.topic};                    
-                };
-                deleteTopicTweet(oldTopic, tid);
-            }else{
-                addTopicTweet(newTopic, tid);
-            }
-        };
 
         /**
         *The following part is like moudle-------------------like-------------------------
@@ -329,5 +216,17 @@ module{
         public func isTweetLiked(tid : Nat, uid : Principal) : Bool{
             likeDB.isTweetLiked(tid, uid)
         };
+
+
+        /*************** inner function **********************************/
+
+        /** TID += 1 and get newest TID **/
+        private func increaseTID() : Nat{
+            tid := tid + 1;
+            getLastestTweetId()
+        };
+
+
+
     };
 };

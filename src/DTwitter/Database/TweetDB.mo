@@ -100,10 +100,11 @@ module{
                 case(null) { return false; };
                 case(?t) { t };
             };
-
-            contentDB.replace(tid, contentDB.make())
-
-            
+            if (contentDB.replace(tid, contentDB.make(text, time, url))){
+                true
+            }else{
+                false
+            }
         };
 
 
@@ -140,36 +141,12 @@ module{
         public func getLastestTweetId() : Nat{
             tid
         };
-
-        /**
-        * @param follow : user principal
-        * @param number : older number
-        */
-        public func getFollowFiveTweets(follow : Principal, number : Nat) : [showTweet]{
-            var tweets = switch(userDB.getUserAllTweets(follow)){
-                case(null) { return []};
-                case(?t) { t }; 
-            };
-            var size : Nat = tweets.size() - 1;
-            var i : Nat = 0;
-            var result : [showTweet] = [];
-            while((number < size - i) and (i <= 5)){
-                i += 1;
-                //get user old five tweets
-                var tempT : showTweet = switch(getShowTweetById(tweets[size - i - number])){
-                    case(null){ return result; };
-                    case(?tweet) { tweet };
-                };
-                result := Array.append(result, [tempT]);
-            };
-            result
-        };
         
         /*
         * get user older five tweets
         * 
         */
-        public func getUserOlderFiveTweets(user : Principal, number : Nat) : ?[Tweet]{
+        public func getUserOlderFiveTweets(user : Principal, number : Nat) : ?[ShowTweet]{
             switch(userDB.getUserAllTweets(user)){
                 case(null) { null };
                 case(?tids){
@@ -178,16 +155,16 @@ module{
                         return null;
                     }else{
                         var i : Nat = 1;
-                        var tempArray : [Tweet] = [];
+                        var tempArray = Array.init<ShowTweet>(size, ());
                         while((number + i < size -1) and (i < 5)){
                             var tempTweet = switch(tweetDB.getShowTweetById(size - 1 - number - i)){
                                 case(?tweet){ tweet };
                                 case(_) { return null; };
                             };
-                            tempArray := Array.append(tempArray, [tempTweet]);
+                            tempArray[i-1] := tempTweet;
                             i += 1;
                         };
-                        Option.make<[Tweet]>(tempArray)
+                        ?tempArray
                     }
                 };
             }

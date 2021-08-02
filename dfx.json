@@ -1,7 +1,7 @@
 {
   "canisters": {
     "DTwitter": {
-      "main": "src/DTwitter/main.mo",
+      "main": "src/DTwitter/Database/TweetDB.mo",
       "type": "motoko"
     },
     "DTwitter_assets": {
@@ -23,7 +23,7 @@
       "packtool": ""
     }
   },
-  "dfx": "0.7.2",
+  "dfx": "0.8.0",
   "networks": {
     "local": {
       "bind": "127.0.0.1:8080",

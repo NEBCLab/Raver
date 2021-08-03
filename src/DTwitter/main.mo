@@ -159,6 +159,7 @@ actor DTwitter{
                 }else{
                     var i : Nat = 0;
                     var tempArray = Array.init<ShowTweet>(5, Tweet.defaultType().defaultShowTweet);
+                    //WARNNING : Nat map trap
                     while((number + i <= size -1) and (i < 5)){
                         tempArray[i] := switch(tweetDB.getShowTweetById(size - 1 - number -1 - i)){
                             case(?tweet){ tweet };

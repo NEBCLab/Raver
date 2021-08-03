@@ -58,6 +58,7 @@ module{
                 assert(uid == operator_);
                 userDB.delete(uid);
                 userTweet.delete(uid);
+                deleteFollowMap(uid);
                 true
             }else{
                 false
@@ -308,7 +309,10 @@ module{
             };
         };
 
-
+        private func deleteFollowMap(user : Principal) {
+            follower.delete(user);
+            follow.delete(user);
+        }
 
     };
 };

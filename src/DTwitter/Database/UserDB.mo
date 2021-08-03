@@ -6,7 +6,8 @@ import Hash "mo:base/Hash";
 import Principal "mo:base/Principal";
 import List "mo:base/List";
 import Nat "mo:base/Nat";
-import Option "mo:base/Option"
+import Option "mo:base/Option";
+import TrieSet "mo:base/TrieSet"
 
 module{
     type User = User.User;
@@ -18,9 +19,9 @@ module{
         // uid -> tweets tid
         private var userTweet = HashMap.HashMap<Principal, [Nat]>(1, Principal.equal, Principal.hash);
         // follower : user uid -> follower uid List
-        private var follower = HashMap.HashMap<Principal, List.List<Principal>>(1, Principal.equal, Principal.hash);
+        private var follower = HashMap.HashMap<Principal, TrieSet.Set<Principal>>(1, Principal.equal, Principal.hash);
         // follow user : user uid -> follow uid List
-        private var follow = HashMap.HashMap<Principal, List.List<Principal>>(1, Principal.equal, Principal.hash);        
+        private var follow = HashMap.HashMap<Principal, TrieSet.Set<Principal>>(1, Principal.equal, Principal.hash);        
         // get user principal by tweet id
         private var tweet_user = HashMap.HashMap<Nat, Principal>(1, Nat.equal, Hash.hash);
 
@@ -188,11 +189,13 @@ module{
             assert(isExist(follower_user));
             switch(follower.get(user)){
                 case(null){ 
-                    follower.put(user, ?(follower_user, null));
+                    var tempSet=TrieSet.empty<Principal>();
+                    tempSet := TrieSet.put<Principal>(tempSet,follower_user,Principal.hash(follower_user),Principal.equal);
+                    follower.put(user, tempSet);
                 };  
-                case(?list){
-                    var newList = List.push<Principal>(follower_user, list);
-                    ignore follower.replace(user, newList);
+                case(?set){
+                    var newSet = TrieSet.put<Principal>(set, follower_user, Principal.hash(follower_user),Principal.equal);
+                    ignore follower.replace(user, newSet);
                 };
             };
             true
@@ -205,16 +208,55 @@ module{
             assert(isExist(user));
             assert(isExist(follower_user));
             switch(follow.get(follower_user)){
-                case(null){
-                    follow.put(follower_user, ?(user, null));
-                };
-                case(?list){
-                    var newList = List.push<Principal>(user, list);
-                    ignore follow.replace(follower_user, newList);
+                case(null){ 
+                    var tempSet=TrieSet.empty<Principal>();
+                    tempSet := TrieSet.put<Principal>(tempSet,user,Principal.hash(user),Principal.equal);
+                    follow.put(follower_user, tempSet);
+                };  
+                case(?set){
+                    var newSet = TrieSet.put<Principal>(set, user, Principal.hash(user),Principal.equal);
+                    ignore follow.replace(follower_user, newSet);
                 };
             };
             true
         };
+
+        public func cancelFollow(user : Principal, follower_user : Principal) : Nat{
+            var check = isAFollowedByB(user, follower_user);
+            if(check == 1){
+                switch(follow.get(follower_user)){
+                    case(null){
+                        return 10;
+                    };
+                    case(?set){
+                        var newSet = TrieSet.delete<Principal>(set, user, Principal.hash(user), Principal.equal);
+                        ignore follow.replace(follower_user, newSet);
+                        return 1;
+                    };
+                };
+            }else{
+                return check;
+            };
+        };
+
+        public func cancelFollower(user : Principal, follower_user : Principal) : Nat{
+            var check = isAFollowedByB(user, follower_user);
+            if(check == 1){
+                switch(follower.get(user)){
+                    case(null){
+                        return 10;
+                    };
+                    case(?set){
+                        var newSet = TrieSet.delete<Principal>(set, follower_user, Principal.hash(follower_user), Principal.equal);
+                        ignore follower.replace(user, newSet);
+                        return 1;
+                    };
+                };
+            }else{
+                return check;
+            };
+        };
+
 
         public func getFollow(user : Principal) : ?[Principal]{
             if(isExist(user)){
@@ -222,8 +264,8 @@ module{
                     case null {
                         Option.make<[Principal]>([])
                     };
-                    case(?list){
-                        Option.make<[Principal]>(List.toArray<Principal>(list))
+                    case(?set){
+                        Option.make<[Principal]>(TrieSet.toArray<Principal>(set))
                     };
                 };
             }else{
@@ -237,8 +279,8 @@ module{
                     case null {
                         Option.make<[Principal]>([])
                     };
-                    case(?list){
-                        Option.make<[Principal]>(List.toArray<Principal>(list))
+                    case(?set){
+                        Option.make<[Principal]>(TrieSet.toArray<Principal>(set))
                     };
                 };
             }else{
@@ -249,16 +291,12 @@ module{
         public func isAFollowedByB(user_A : Principal, user_B : Principal) : Nat{
             if(isExist(user_A)){
                 if(isExist(user_B)){
-                    switch(getFollower(user_A)){
+                    switch(follower.get(user_A)){
                         case null {
                             return 10; //Unknown Error
                         };
-                        case(?array){
-                            for (x in array.vals()) {
-                                if (x == user_B) {
-                                    return 1; //true
-                                }
-                            };
+                        case(?set){
+                            if(TrieSet.mem<Principal>(set, user_B, Principal.hash(user_B),Principal.equal)) return 1;
                             return 0; //false
                         };
                     };

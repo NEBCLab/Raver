@@ -167,7 +167,7 @@ module{
                             };
                             tempArray[i-1] := tempTweet;
                             i += 1;
-                        };
+                        }; 
                         ?tempArray
                     }
                 };

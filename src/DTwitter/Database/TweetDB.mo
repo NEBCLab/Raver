@@ -1,18 +1,21 @@
-import Tweet "../Module/Tweet";
-import User "../Module/User";
 import Nat "mo:base/Nat";
 import HashMap "mo:base/HashMap";
 import Hash "mo:base/Hash";
 import Array "mo:base/Array";
-import tools "../Module/tools";
 import Text "mo:base/Text";
-import UserDB "./UserDB";
 import Nat8 "mo:base/Nat8";
+import Option "mo:base/Option";
+
+import Tweet "../Module/Tweet";
+import User "../Module/User";
+import Content "../Module/Content";
+
+import UserDB "./UserDB";
 import LikeDB "./LikeDB";
-import Option "mo:base/Option"
+import CommentDB "./CommentDB";
+import ContentDB "./ContentDB";
 
 module{
-    type Tweet = Tweet.Tweet;
     type TID = Tweet.TID;
     type UserDB = UserDB.userDB;
     type ShowTweet = Tweet.showTweet;
@@ -28,7 +31,7 @@ module{
         /**
         * tweet map : map<tweet TID , Tweet>
         */
-        private var tweetMap = HashMap.HashMap<Nat, Tweet>(1, Nat.equal, Hash.hash);
+        private var tweetMap = HashMap.HashMap<Nat, Tweet.Tweet>(1, Nat.equal, Hash.hash);
 
         //comment database
         private var commentDB = CommentDB.commentDB();
@@ -41,10 +44,10 @@ module{
 
         public func createTweet(text : Text, time : Text, uid : Principal, url : Text) : Bool{
             let tid = increaseTID();
-            let tweet : Tweet = { tid = tid };
+            let tweet : Tweet.Tweet = { tid = tid };
             let content = contentDB.make(text, time, url);
             tweetMap.put(tid, tweet);
-            contentDB.add(tid, content);
+            ignore contentDB.add(tid, content);
             userDB.addTweet(uid, tid);
             //comment
             //likeDB
@@ -60,7 +63,7 @@ module{
         public func isTweetExist(tid : Nat) : Bool{
             switch(tweetMap.get(tid)){
                 case(null) { false };
-                case(()) { true };
+                case(_) { true };
             }
         };
 
@@ -75,10 +78,16 @@ module{
                 case (?uid){
                     if(uid == oper_){
                         tweetMap.delete(tid);
-                        userDB.deleteTweet(uid, tid);
-                        contentDB.delete(tid);
+                        switch(userDB.deleteTweet(uid, tid), contentDB.delete(tid), commentDB.deleteTweet(tid)){
+                            case(true, true, true){
+                                true
+                            };
+                            case(_){
+                                false
+                            };
+                        };
                         //likeDB.delete(tid);
-                        commentDB.delete(tid);
+                        
                         //topic
                     }else{
                         false
@@ -97,7 +106,7 @@ module{
             //change tweet topic
             let oldTweet = switch(getShowTweetById(tid)){
                 // ERROR WORNING
-                case(null) { return false; };
+                case(null) { Tweet.defaultType().defaultTweet };
                 case(?t) { t };
             };
             if (contentDB.replace(tid, contentDB.make(text, time, url))){
@@ -111,22 +120,17 @@ module{
         /**
         * get tweet by id
         */
-        public func getShowTweetById(tid : Nat) : ?showTweet{
+        public func getShowTweetById(tid : Nat) : ?ShowTweet{
             if(isTweetExist(tid)){
-                let content = switch(contentDB.get(tid)){
-                        case null { "" };
-                        case (?text) { text };
-                };
+                let con_ = Option.unwrap<Content.content>(contentDB.get(tid));
+                let uid = Option.unwrap<Principal>(userDB.getUidByTid(tid));
 
                 ?{
                     tid = tid;
-                    content = content.text;
-                    time = content.time;
-                    user =  switch(userDB.getUidByTid(tid)){
-                                case(null) { return null };
-                                case (?owner) { owner };
-                            };
-                    url = content.url;
+                    content = con_.text;
+                    time = con_.time;
+                    user =  Option.unwrap<User.User>(userDB.getUserProfile(uid));
+                    url = con_.url;
                     likeNumber = likeDB.likeAmount(tid);
                     commentNumber = commentDB.getNumber(tid);
                 }
@@ -146,20 +150,20 @@ module{
         * get user older five tweets
         * 
         */
-        public func getUserOlderFiveTweets(user : Principal, number : Nat) : ?[ShowTweet]{
+        public func getUserOlderFiveTweets(user : Principal, number : Nat) : ?[var ShowTweet]{
             switch(userDB.getUserAllTweets(user)){
                 case(null) { null };
                 case(?tids){
-                    var size = tids.size();
+                    var size : Nat = tids.size();
                     if(number >= size){
                         return null;
                     }else{
                         var i : Nat = 1;
-                        var tempArray = Array.init<ShowTweet>(size, ());
+                        var tempArray = Array.init<ShowTweet>(size, Tweet.defaultType().defaultShowTweet);
                         while((number + i < size -1) and (i < 5)){
-                            var tempTweet = switch(tweetDB.getShowTweetById(size - 1 - number - i)){
+                            var tempTweet : ShowTweet = switch(getShowTweetById(size - 1 - number - i)){
                                 case(?tweet){ tweet };
-                                case(_) { return null; };
+                                case(_) { Tweet.defaultType().defaultShowTweet };
                             };
                             tempArray[i-1] := tempTweet;
                             i += 1;
@@ -169,6 +173,15 @@ module{
                 };
             }
         };
+
+        
+        
+        /**
+        *The following part is comment moudle-------------------comment-------------------------
+        **/     
+
+
+
 
 
         /**

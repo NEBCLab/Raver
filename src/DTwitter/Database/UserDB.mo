@@ -5,7 +5,7 @@ import Array "mo:base/Array";
 import Hash "mo:base/Hash";
 import Principal "mo:base/Principal";
 import List "mo:base/List";
-
+import Nat "mo:base/Nat";
 
 module{
     type User = User.User;
@@ -100,10 +100,10 @@ module{
             switch(userDB.get(uid)){
                 case(?user){ true };
                 case(_){ false };
--            }
+            }
         };
 
-/****************************  Tweet *********************************************************
+/****************************  Tweet *********************************************************/
 
         /**
         * append tweet id to user profile
@@ -139,7 +139,7 @@ module{
         };
 
         //TODO : tweet [] -> Tree
-        public func deleteUserTweet(uid : Principal, tid : Nat) : Bool{
+        public func deleteTweet(uid : Principal, tid : Nat) : Bool{
             var newArray : [Nat] = []; 
             if(isExist(uid)){
                 var tweet : [Nat] = switch(userTweet.get(uid)){
@@ -152,7 +152,7 @@ module{
                     }
                 };
                 ignore userTweet.replace(uid, newArray);
-                deleteTweetUser(tid, uid);
+                deleteTweetUser(tid);
                 true
             }else{
                 false
@@ -175,7 +175,7 @@ module{
         };
 
 
-//***********************************************************************
+//***********************************************************************/
                             /** TODO **/
 
         /**

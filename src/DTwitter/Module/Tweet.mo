@@ -1,14 +1,14 @@
 import HashMap "mo:base/HashMap";
 import Hash "mo:base/Hash";
-//import User "./User";
+import User "./User";
 
 module {
     //type User = User.User;
-    private type User = {
-        uid : Principal;
-        uname : Text;
-        avatarimg : Text;
-    };
+    // private type User = {
+    //     uid : Principal;
+    //     uname : Text;
+    //     avatarimg : Text;
+    // };
     //Tweet ID
     public type TID = Nat;
     //Tweet content
@@ -36,10 +36,26 @@ module {
         content : Text;
         //topic : Text;
         time : Text;
-        user : User;
+        user : User.User;
         url : Text;
         likeNumber : Nat;
         commentNumber : Nat;
+    };
+
+    public class defaultType() {
+        public let defaultTweet : Tweet = {
+            tid = 0;
+        };
+
+        public let defaultShowTweet : showTweet = {
+            tid = 0;
+            content = "default";
+            time = "0:0:0";
+            user = User.defaultType().defaultUser;
+            url = "default";
+            likeNumber = 0;
+            commentNumber = 0;
+        };
     };
 
 };

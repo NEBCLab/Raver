@@ -1,7 +1,8 @@
 import Tweet "../Module/Tweet";
 import Nat "mo:base/Nat";
-import Hash "mo：base/Hash";
+import Hash "mo:base/Hash";
 import Content "../Module/Content";
+import HashMap "mo:base/HashMap";
 
 module {
 
@@ -31,7 +32,7 @@ module {
         * @return true
         */
         public func delete(tid : Nat) : Bool{
-            contentMap.delete(tid)
+            contentMap.delete(tid);
             true
         };
 
@@ -51,8 +52,11 @@ module {
         * @param tid : tweet id : Nat
         * @return null or ?Text
         */
-        public func get(tid : Nat) : ?Text{
-            contentMap.get(tid)
+        public func get(tid : Nat) : ?Content{
+            switch(contentMap.get(tid)){
+                case null { null };
+                case (?c){ ?c };
+            }
         };
 
         /*
@@ -69,7 +73,7 @@ module {
 
         // make content struct
         public func make(text : Text, time : Text, url : Text) : Content{
-            content{
+            {
                 text = text;
                 time = time;
                 url = url;

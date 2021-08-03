@@ -6,8 +6,12 @@ module {
         url : Text;
     };
 
-
-
-
+    public class defaultType(){
+        public let defaultContent : content = {
+            text = "default";
+            time = "default";
+            url = "default";
+        };
+    };
 
 };

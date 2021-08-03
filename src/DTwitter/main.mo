@@ -5,6 +5,7 @@ import User "./Module/User";
 import Error "mo:base/Error";
 import Array "mo:base/Array";
 import Nat "mo:base/Nat";
+import Option "mo:base/Option";
 
 actor DTwitter{
     type User = User.User;
@@ -70,8 +71,9 @@ actor DTwitter{
     * @param time : Text -> send tweet time
     * @return bool : if add tweet successfully
     */
-    public shared(msg) func addTweet(topic : Text, content : Text, time : Text, url : Text) : async Bool{
-        tweetDB.createTweet(topic, content, time, msg.caller, url)
+    //todo : topic
+    public shared(msg) func addTweet(content : Text, time : Text, url : Text) : async Bool{
+        tweetDB.createTweet(content, time, msg.caller, url)
     };
 
     /**
@@ -79,10 +81,26 @@ actor DTwitter{
     * @param msg : msg
     * @return user's all tweet id array : [Nat]
     */
-    public query func getUserAllTweets(uid : Principal) : async [Nat]{
+    public query func getUserAllTID(uid : Principal) : async [Nat]{
         switch(userDB.getUserAllTweets(uid)){
             case ( null ){ [] };
             case (?array) { array };
+        }
+    };
+
+    //get user's all show tweet
+    public query func getUserAllTweets(uid : Principal) : async [ShowTweet]{
+        switch(userDB.getUserAllTweets(uid)){
+            case null { throw Error.reject("no such user") };
+            case (?array){
+                var tempArray = Array.init<ShowTweet>(array.size(), Tweet.defaultType().defaultShowTweet);
+                var i = 0;
+                for(k in array.vals()){
+                    tempArray[i] := Option.unwrap<ShowTweet>(tweetDB.getShowTweetById(k));
+                    i := i + 1;
+                };
+                Array.freeze<ShowTweet>(tempArray)
+            };
         }
     };
 
@@ -92,11 +110,11 @@ actor DTwitter{
     */
     public query func getUserLastestTenTweets(uid : Principal) : async [ShowTweet]{
         // user tweet tid
-        var array = switch(userDB.getUserAllTweets(uid)){
+        var array : [Nat] = switch(userDB.getUserAllTweets(uid)){
             case ( null ){ [] };
             case (?array) { array };
         };
-        let tweets : [var ShowTweet] = Array.init<ShowTweet>(10, Tweet.defaultType().defaultTweet);
+        let tweets : [var ShowTweet] = Array.init<ShowTweet>(10, Tweet.defaultType().defaultShowTweet);
         var i : Nat = 0;
         if(array.size() >= 10){
             while(i < 10){
@@ -110,7 +128,7 @@ actor DTwitter{
                     };
                 };
             };
-            tweets
+            Array.freeze<ShowTweet>(tweets)
         }else{
             while(i < array.size()){
                 switch(tweetDB.getShowTweetById(array[array.size() - i -1])){
@@ -123,7 +141,7 @@ actor DTwitter{
                     };
                 };
             };
-            tweets
+            Array.freeze<ShowTweet>(tweets)
         }
     };
 
@@ -131,16 +149,16 @@ actor DTwitter{
     /**
     * @param number : Nat -> [Tweet] size <= 5
     */
-    public query func getUserOlderFiveTweets(number : Nat) : async [ShowTweet]{
-        switch(userDB.getUserAllTweets(msg.caller)){
-            case(null) { [] };
+    public query func getUserOlderFiveTweets(number : Nat, uid : Principal) : async [ShowTweet]{
+        switch(userDB.getUserAllTweets(uid)){
+            case(null) { throw Error.reject(" no such user"); };
             case(?tids){
                 var size = tids.size();
                 if(number >= size){
-                    return [];
+                    throw Error.reject("no tweet");
                 }else{
                     var i : Nat = 0;
-                    var tempArray = Array.init<ShowTweet>(5, Tweet.defaultType().defaultTweet);
+                    var tempArray = Array.init<ShowTweet>(5, Tweet.defaultType().defaultShowTweet);
                     while((number + i <= size -1) and (i < 5)){
                         tempArray[i] := switch(tweetDB.getShowTweetById(size - 1 - number -1 - i)){
                             case(?tweet){ tweet };
@@ -148,17 +166,17 @@ actor DTwitter{
                         };
                         i += 1;
                     };
-                    tempArray
+                    Array.freeze<ShowTweet>(tempArray)
                 }
             };
         };
     };
 
     /****/
-    public shared(msg) func getFollowFiveTweets(follow : Principal, number : Nat) : async [ShowTweet]{
-        assert(userDB.isExist(follow));
-        tweetDB.getFollowFiveTweets(follow, number)
-    };
+    // public shared(msg) func getFollowFiveTweets(follow : Principal, number : Nat) : async [ShowTweet]{
+    //     assert(userDB.isExist(follow));
+    //     tweetDB.getFollowFiveTweets(follow, number)
+    // };
 
 
     /**
@@ -181,9 +199,9 @@ actor DTwitter{
         tweetDB.getLastestTweetId()
     };
 
-    public shared(msg) func reTweet(tid : Nat) : async Bool{
-        tweetDB.reTweet(tid, msg.caller);
-    };
+    // public shared(msg) func reTweet(tid : Nat) : async Bool{
+    //     tweetDB.reTweet(tid, msg.caller);
+    // };
 
     /*
     * if tweet is existed
@@ -198,29 +216,22 @@ actor DTwitter{
         tweetDB.deleteTweet(msg.caller, tid)
     };
 
-    public shared(msg) func changeTweet(tid : Nat, topic : Text, content : Text, time : Text, url : Text) : async Bool{ 
+    public shared(msg) func changeTweet(tid : Nat, content : Text, time : Text, url : Text) : async Bool{ 
         switch(tweetDB.getShowTweetById(tid)){
             case(null) { return false; };
             case(?t) {
                 assert(t.user.uid == msg.caller);
             };
         };
-        tweetDB.changeTweet(tid, ShowTweet {
-            tid = tid;
-            topic = topic;
-            content = content;
-            time = time;
-            owner = msg.caller;
-            url = url;
-        })
+        tweetDB.changeTweet(tid, content, time, msg.caller, url)
     };
 
-    public query func getTopicAllTweet(topic : Text) : async [Nat]{
-        switch(tweetDB.findTweetByTopic(topic)){
-            case(null){ [] };
-            case(?array){ array };
-        }
-    };
+    // public query func getTopicAllTweet(topic : Text) : async [Nat]{
+    //     switch(tweetDB.findTweetByTopic(topic)){
+    //         case(null){ [] };
+    //         case(?array){ array };
+    //     }
+    // };
 
 
     /**
@@ -229,12 +240,12 @@ actor DTwitter{
     * @param uid : user principal
     * @return [Principal] user followed by user  
     */
-    public shared(msg) func getFollow(uid : Principal) : async [Principal]{
-        switch(userDB.getFollow(msg.caller)){
-            case(null){ throw Error.reject("no such user") };
-            case(?array) { array };
-        };
-    };
+    // public shared(msg) func getFollow(uid : Principal) : async [Principal]{
+    //     switch(userDB.getFollow(msg.caller)){
+    //         case(null){ throw Error.reject("no such user") };
+    //         case(?array) { array };
+    //     };
+    // };
 
     /**
     * get user follower
@@ -242,12 +253,12 @@ actor DTwitter{
     * @param uid : user principal
     * @return [Principal] user followed by user  
     */
-    public shared(msg) func getFollower(uid : Principal) : async [Principal]{
-        switch(userDB.getFollower(msg.caller)){
-            case(null){ throw Error.reject("no such user") };
-            case(?array) { array };
-        };
-    };
+    // public shared(msg) func getFollower(uid : Principal) : async [Principal]{
+    //     switch(userDB.getFollower(msg.caller)){
+    //         case(null){ throw Error.reject("no such user") };
+    //         case(?array) { array };
+    //     };
+    // };
 
 
     /** TODO**/

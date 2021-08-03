@@ -5,15 +5,18 @@ import Text "mo:base/Text";
 module {
     //user id
     public type UID = Principal;
-    // user name
-    public type UName = Text;
+    // nick name
+    public type NickName = Text;
+    // username
+    public type UserName = Text;
     // avatar img url
     public type Avatarimg = Text;
     //user Profile
 
     public type User = {
         uid : UID;
-        uname : UName;
+        nickname : NickName;
+        username : UserName;
         avatarimg : Avatarimg;
     };
 
@@ -22,7 +25,8 @@ module {
         private let defaultPrincipal : Principal = Principal.fromText("default");
         public let defaultUser : User = {
             uid = defaultPrincipal;
-            uname = "default";
+            nickname = "default";
+            username = "unset";
             avatarimg = "default";
         };
     };

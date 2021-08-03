@@ -116,5 +116,16 @@ module{
             };
         };
 
+        
+        /**
+        * delete a tweet's LikeDB
+        * @param tid : Nat
+        * @param uid : Principal
+        * @return
+        */
+
+        public func deleteLikeDB(tid : Nat){
+            likeMap.delete(tid)
+        };
     };
 };

@@ -19,10 +19,11 @@ actor DTwitter{
     * @pararm uname ; user name 
     * @return successful -> true; failed : false
     */
-    public shared(msg) func addUser(uname : Text, avatarimg: Text) : async Bool{
+    public shared(msg) func addUser(username : Text,nickname : Text, avatarimg: Text) : async Bool{
         userDB.addUser({
             uid = msg.caller;
-            uname = uname;
+            nickname =nickname;
+            username = username;
             avatarimg = avatarimg;
         })
     };
@@ -45,10 +46,11 @@ actor DTwitter{
     * @param uname : Text new user name
     * @return successful -> true; failed : false
     */
-    public shared(msg) func changeUserProfile(uname : Text, avatarimg : Text) : async Bool{
+    public shared(msg) func changeUserProfile(nickname : Text, username : Text, avatarimg : Text) : async Bool{
         userDB.changeUserProfile(msg.caller, {
             uid = msg.caller;
-            uname = uname;
+            nickname = nickname;
+            username = username;
             avatarimg = avatarimg;
         })
     };
@@ -236,17 +238,25 @@ actor DTwitter{
 
 
     /**
+    *The following part is follow moudle-------------------follow-------------------------
+    **/
+
+    /**
     * get user attention user
     * @param msg
     * @param uid : user principal
     * @return [Principal] user followed by user  
     */
-    // public shared(msg) func getFollow(uid : Principal) : async [Principal]{
-    //     switch(userDB.getFollow(msg.caller)){
-    //         case(null){ throw Error.reject("no such user") };
-    //         case(?array) { array };
-    //     };
-    // };
+    public query func getFollow(uid : Principal) : async [Principal]{
+        switch(userDB.getFollow(uid)){
+            case null{
+                throw Error.reject("no such user")
+            };
+            case(?array){
+                array
+            };
+        };
+    };
 
     /**
     * get user follower
@@ -254,16 +264,55 @@ actor DTwitter{
     * @param uid : user principal
     * @return [Principal] user followed by user  
     */
-    // public shared(msg) func getFollower(uid : Principal) : async [Principal]{
-    //     switch(userDB.getFollower(msg.caller)){
-    //         case(null){ throw Error.reject("no such user") };
-    //         case(?array) { array };
-    //     };
-    // };
+    public query func getFollower(uid : Principal) : async [Principal]{
+        switch(userDB.getFollower(uid)){
+            case null{
+                throw Error.reject("no such user")
+            };
+            case(?array){
+                array
+            };
+        };
+    };
 
+    public query func isTwoUserFollowEachOther(user_A : Principal, user_B : Principal) : async Bool{
+        var result = userDB.isAFollowedByB(user_A, user_B);
+        if(result == 0) return false;
+        if(result == 6) throw Error.reject("A does not exist");
+        if(result == 7) throw Error.reject("B does not exist");
+        if(result == 10) throw Error.reject("Unknown Error");
+        if(result == 1){
+            var result_reverse = userDB.isAFollowedByB(user_B, user_A);
+            if(result_reverse == 0) return false;
+            if(result_reverse == 10 or result_reverse == 6  or result_reverse == 7) throw Error.reject("Unknown Error");
+            if(result_reverse == 1) return true;
+        };
+        false
+    };
 
-    /** TODO**/
-    // public shared(msg) func deleteFollow() ： async Bool{};
+    public query func isAFollowedByB(user_A : Principal, user_B : Principal) : async Bool{
+        var result = userDB.isAFollowedByB(user_A, user_B);
+        if(result == 0) return false;
+        if(result == 6) throw Error.reject("A does not exist");
+        if(result == 7) throw Error.reject("B does not exist");
+        if(result == 10) throw Error.reject("Unknown Error");
+        if(result == 1) return true;
+        false;
+    };
+
+    public shared(msg) func addFollow(follow : Principal): async Bool{
+        var stepOne = userDB.addFollow(follow, msg.caller);
+        var stepTwo = userDB.addFollower(follow, msg.caller);
+        if(stepOne and stepTwo) true
+        else false
+    };
+
+    public shared(msg) func cancelFollow(follow : Principal): async Bool{
+        var stepOne = userDB.cancelFollow(follow, msg.caller);
+        var stepTwo = userDB.cancelFollower(follow, msg.caller);
+        if(stepOne == 1 and stepTwo == 1) true
+        else false
+    };
 
 
     /**

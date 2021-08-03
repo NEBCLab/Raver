@@ -6,6 +6,7 @@ import Hash "mo:base/Hash";
 import Principal "mo:base/Principal";
 import List "mo:base/List";
 import Nat "mo:base/Nat";
+import Option "mo:base/Option"
 
 module{
     type User = User.User;
@@ -175,8 +176,7 @@ module{
         };
 
 
-//***********************************************************************/
-                            /** TODO **/
+        //**********************follow part****************************/
 
         /**
         * add follower
@@ -189,12 +189,10 @@ module{
             switch(follower.get(user)){
                 case(null){ 
                     follower.put(user, ?(follower_user, null));
-                    ignore addFollow(user, follower_user);
                 };  
                 case(?list){
                     var newList = List.push<Principal>(follower_user, list);
                     ignore follower.replace(user, newList);
-                    ignore addFollow(user, follower_user);
                 };
             };
             true
@@ -209,22 +207,70 @@ module{
             switch(follow.get(follower_user)){
                 case(null){
                     follow.put(follower_user, ?(user, null));
-                    ignore addFollower(user, follower_user);
                 };
                 case(?list){
                     var newList = List.push<Principal>(user, list);
                     ignore follow.replace(follower_user, newList);
-                    ignore addFollower(user, follower_user);
                 };
             };
             true
         };
 
+        public func getFollow(user : Principal) : ?[Principal]{
+            if(isExist(user)){
+                switch(follow.get(user)){
+                    case null {
+                        Option.make<[Principal]>([])
+                    };
+                    case(?list){
+                        Option.make<[Principal]>(List.toArray<Principal>(list))
+                    };
+                };
+            }else{
+                null
+            };      
+        };
 
+        public func getFollower(user : Principal) : ?[Principal]{
+            if(isExist(user)){
+                switch(follower.get(user)){
+                    case null {
+                        Option.make<[Principal]>([])
+                    };
+                    case(?list){
+                        Option.make<[Principal]>(List.toArray<Principal>(list))
+                    };
+                };
+            }else{
+                null
+            };
+        };
+
+        public func isAFollowedByB(user_A : Principal, user_B : Principal) : Nat{
+            if(isExist(user_A)){
+                if(isExist(user_B)){
+                    switch(getFollower(user_A)){
+                        case null {
+                            return 10; //Unknown Error
+                        };
+                        case(?array){
+                            for (x in array.vals()) {
+                                if (x == user_B) {
+                                    return 1; //true
+                                }
+                            };
+                            return 0; //false
+                        };
+                    };
+                }else{
+                    return 7; //B does not exist
+                };
+            }else{
+                return 6; //A does not exist
+            };
+        };
 
 
 
     };
-
-
 };

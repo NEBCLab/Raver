@@ -154,11 +154,11 @@ actor DTwitter{
         };
     };
 
-    /****/
-    public shared(msg) func getFollowFiveTweets(follow : Principal, number : Nat) : async [ShowTweet]{
-        assert(userDB.isExist(follow));
-        tweetDB.getFollowFiveTweets(follow, number)
-    };
+    /**TO DO**/
+    //public shared(msg) func getFollowFiveTweets(follow : Principal, number : Nat) : async [ShowTweet]{
+    //    assert(userDB.isExist(follow));
+    //    tweetDB.getFollowFiveTweets(follow, number)
+    //};
 
 
     /**
@@ -224,15 +224,23 @@ actor DTwitter{
 
 
     /**
+    *The following part is follow moudle-------------------follow-------------------------
+    **/
+
+    /**
     * get user attention user
     * @param msg
     * @param uid : user principal
     * @return [Principal] user followed by user  
     */
-    public shared(msg) func getFollow(uid : Principal) : async [Principal]{
-        switch(userDB.getFollow(msg.caller)){
-            case(null){ throw Error.reject("no such user") };
-            case(?array) { array };
+    public query func getFollow(uid : Principal) : async [Principal]{
+        switch(userDB.getFollow(uid)){
+            case null{
+                throw Error.reject("no such user")
+            };
+            case(?array){
+                array
+            };
         };
     };
 
@@ -242,16 +250,37 @@ actor DTwitter{
     * @param uid : user principal
     * @return [Principal] user followed by user  
     */
-    public shared(msg) func getFollower(uid : Principal) : async [Principal]{
-        switch(userDB.getFollower(msg.caller)){
-            case(null){ throw Error.reject("no such user") };
-            case(?array) { array };
+    public query func getFollower(uid : Principal) : async [Principal]{
+        switch(userDB.getFollower(uid)){
+            case null{
+                throw Error.reject("no such user")
+            };
+            case(?array){
+                array
+            };
         };
     };
 
+    public query func isTwoUserFollowEachOther(user_A : Principal, user_B : Principal) : async Bool{
+        var result = userDB.isAFollowedByB(user_A, user_B);
+        if(result == 0) return false;
+        if(result == 6) throw Error.reject("A does not exist");
+        if(result == 7) throw Error.reject("B does not exist");
+        if(result == 10) throw Error.reject("Unknown Error");
+        if(result == 1){
+            var result_reverse = userDB.isAFollowedByB(user_B, user_A);
+            if(result_reverse == 0) return false;
+            if(result_reverse == 10 or result_reverse == 6  or result_reverse == 7) throw Error.reject("Unknown Error");
+            if(result_reverse == 1) return true;
+        }
+    };
 
-    /** TODO**/
-    // public shared(msg) func deleteFollow() ： async Bool{};
+    public shared(msg) func addFollow(follow : Princiapl): async Bool{
+        var stepOne = userDB.addFollow(follow, msg.caller);
+        var stepTwo = userDB.addFollower(follow, msg.caller);
+        if(stepOne and stepTwo) true
+        else false
+    };
 
 
     /**

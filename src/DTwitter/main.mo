@@ -34,11 +34,18 @@ actor DTwitter{
     * @return successful -> true; failed : false
     */
     public shared(msg) func deleteUser() : async Bool{
-        userDB.deleteUser(msg.caller)
+        var tweetArray = Option.get<[Nat]>(userDB.getUserAllTweets(msg.caller), []);
+        var status = true;
+        for(x in tweetArray.vals()){
+            if(tweetDB.deleteTweet(msg.caller, x) == false) status := false;
+            userDB.deleteTweetUser(x);
+        };
+        if(userDB.deleteUser(msg.caller) == false) status := false;
+        return status;
     };
 
-    public query func ifUserExisted(uid : Principal) : async Bool{
-        userDB.isExist(uid)
+    public query func isUserExist(uid : Principal) : async Bool{
+        userDB.isUserExist(uid)
     };
 
     /**
@@ -341,4 +348,13 @@ actor DTwitter{
         tweetDB.isTweetLiked(tid, uid)
     };
 
+    /**
+    *The following part is like moudle-------------------bio-------------------------
+    **/
+    public query func getBio(uid : Principal) : async Text{
+        userDB.getBio(uid)
+    };
+    public shared(msg) func putBio(uid : Principal, bioText : Text){
+        userDB.putBio(uid, bioText)
+    }
 };

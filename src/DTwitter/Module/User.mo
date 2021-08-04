@@ -11,7 +11,6 @@ module {
     public type UserName = Text;
     // avatar img url
     public type Avatarimg = Text;
-    //user Profile
 
     public type User = {
         uid : UID;
@@ -30,6 +29,4 @@ module {
             avatarimg = "default";
         };
     };
-
-
 };

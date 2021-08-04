@@ -5,11 +5,9 @@ import Array "mo:base/Array";
 import Text "mo:base/Text";
 import Nat8 "mo:base/Nat8";
 import Option "mo:base/Option";
-
 import Tweet "../Module/Tweet";
 import User "../Module/User";
 import Content "../Module/Content";
-
 import UserDB "./UserDB";
 import LikeDB "./LikeDB";
 import CommentDB "./CommentDB";
@@ -78,16 +76,15 @@ module{
                 case (?uid){
                     if(uid == oper_){
                         tweetMap.delete(tid);
-                        switch(userDB.deleteTweet(uid, tid), contentDB.delete(tid), commentDB.deleteTweet(tid)){
-                            case(true, true, true){
+                        likeDB.deleteLikeDB(tid);
+                        switch(contentDB.delete(tid), commentDB.deleteTweet(tid)){
+                            case(true, true){
                                 true
                             };
                             case(_){
                                 false
                             };
                         };
-                        //likeDB.delete(tid);
-                        
                         //topic
                     }else{
                         false

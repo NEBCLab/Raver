@@ -1,7 +1,7 @@
 {
   "canisters": {
     "DTwitter": {
-      "main": "src/DTwitter/Database/TweetDB.mo",
+      "main": "src/DTwitter/main.mo",
       "type": "motoko"
     },
     "DTwitter_assets": {

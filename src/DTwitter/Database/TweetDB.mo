@@ -141,14 +141,15 @@ module{
             }
         };
 
+        //获取关注用户及自己的最新10条post
         public func getFollowLastestTenTweets(uid : Principal, lastTID : Nat) : [Nat]{
             var followArray = userDB.getFollow(uid);
-            var tweetArray = Array.init<[Nat]>(followArray.size(), []);
+            var tweetArray = Array.init<[Nat]>(followArray.size()+1, []);
             var count = 0; var result_count = 0;
             var result = Array.init<Nat>(10,0);
             var allSize=0;
             for(x in followArray.vals()){
-                tweetArray[count] := switch(userDB.getUserAllTweets(uid)){
+                tweetArray[count] := switch(userDB.getUserAllTweets(x)){
                     case null{[]};
                     case(?array){
                         allSize+=array.size();
@@ -157,13 +158,20 @@ module{
                 };
                 count+=1;
             };
+            tweetArray[count] := switch(userDB.getUserAllTweets(uid)){
+                case null{[]};
+                case(?array){
+                    allSize+=array.size();
+                    array
+                };
+            };
             var i = 1;
-            var hasSel = Array.init<Nat>(followArray.size(),1);
+            var hasSel = Array.init<Nat>(followArray.size()+1,1);
             while(i <= 10 and i <= allSize){
                 count := 0;
                 var maxn=0;
                 var maxn_count=0;
-                while(count < followArray.size()){
+                while(count < followArray.size()+1){
                     if(tweetArray[count][tweetArray[count].size()-hasSel[count]] > maxn){
                         maxn := tweetArray[count][tweetArray[count].size()-hasSel[count]];
                         maxn_count := count;

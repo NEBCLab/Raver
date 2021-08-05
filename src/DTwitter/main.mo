@@ -122,6 +122,8 @@ actor DTwitter{
         tweetDB.getUserLastestTenTweets(uid)
     };
 
+
+    //获取关注用户及自己的最新10条post
     public query func getFollowLastestTenTweets(uid : Principal, lastTID : Nat) : async [ShowTweet]{
         var tidArray = tweetDB.getFollowLastestTenTweets(uid, lastTID);
         var tempArray = Array.init<ShowTweet>(tidArray.size(), Tweet.defaultType().defaultShowTweet);

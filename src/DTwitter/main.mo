@@ -70,7 +70,7 @@ actor DTwitter{
     public query func getUserProfile(uid : Principal) : async User{
         switch(userDB.getUserProfile(uid)){
             case(?user){ user };
-            case(_){ throw Error.reject("No such user") };
+            case(_){ throw Error.reject("no such user") };
         }
     };
 
@@ -137,28 +137,11 @@ actor DTwitter{
     /**
     * @param number : Nat -> [Tweet] size <= 5
     */
-    public query func getUserOlderFiveTweets(number : Nat, uid : Principal) : async [ShowTweet]{
-        switch(userDB.getUserAllTweets(uid)){
-            case(null) { throw Error.reject(" no such user"); };
-            case(?tids){
-                var size = tids.size();
-                if(number >= size){
-                    throw Error.reject("no tweet");
-                }else{
-                    var i : Nat = 0;
-                    var tempArray = Array.init<ShowTweet>(5, Tweet.defaultType().defaultShowTweet);
-                    //WARNNING : Nat map trap
-                    while((number + i <= size -1) and (i < 5)){
-                        tempArray[i] := switch(tweetDB.getShowTweetById(size - 1 - number -1 - i)){
-                            case(?tweet){ tweet };
-                            case(_) { throw Error.reject("no tweet") };
-                        };
-                        i += 1;
-                    };
-                    Array.freeze<ShowTweet>(tempArray)
-                }
-            };
-        };
+    public query func getUserOlderFiveTweets(tid : Nat, uid : Principal) : async [ShowTweet]{
+        switch(tweetDB.getUserOlderFiveTweets(uid, tid)){
+            case(null) { throw Error.reject(" error ") };
+            case(?tweets){ tweets };
+        }
     };
 
 

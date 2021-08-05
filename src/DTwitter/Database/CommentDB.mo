@@ -41,7 +41,7 @@ module{
         };
 
         /****/
-        public func getTweetAllComments(tid : Nat) : ?[var Nat]{
+        public func getTweetAllComments(tid : Nat) : ?[Nat]{
             switch(relation.get(tid)){
                 case null { null };
                 case (?map) {
@@ -50,7 +50,7 @@ module{
                     for((k, _) in map.entries()){
                         array[i] := k;    
                     };
-                    ?array
+                    ?Array.freeze<Nat>(array)
                 };
             };
         };

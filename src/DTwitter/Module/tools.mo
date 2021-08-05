@@ -24,75 +24,29 @@ module{
     return hash;
   };
 
-  //get elemnt E's preElement
-  public func getPreElement<T>(list : List<T>, ele_ : T) : List<T>{
-    switch(list){
-      case null { null };
-      case (?(tEle, nl)){
-        switch(nl){
-          case null { null };
-          case (?(nE, nnl)){
-            if(nE == ele_){
-              list
-            }else{
-              getPreElement(nl, ele_)
-            }
-          };
-        }
-      }
-    }
-  };
 
-  //delete element ele_ from list l
-  public func deleteListElement<T>(l : List.List<T>, ele_ : T) : List.List<T>{
-    var preElement = getPreElement<Nat>(l, ele_);
-    switch(preElement){
-      case null { null };
-      case (?(tE, nl)){
-        switch(nl){
-          case null { null };
-          case (?(nE, nnl)){
-            ?(tE, nnl)
-          }
-        }
-      }
-    }
-  };
+  public func binarySearch(array : [Nat], value : Nat) : Nat{
+    var start : Nat = 0;
+    let size = array.size();
+    var end : Nat = size - 1;
+    var middle : Nat = (start + end) / 2;
 
-
-  //get elemnt E's preElement 
-  //get push element
-  public func getPreElement(list : List.List<Nat>, ele_ : Nat) : List.List<Nat>{
-    switch(list){
-      case null { null };
-      case (?(tEle, nl)){
-        switch(nl){
-          case null { null };
-          case (?(nE, nnl)){
-            if(nE == ele_){
-              list
-            }else{
-              getPreElement(nl, ele_)
-            }
-          };
-        }
+    while(array[middle] != value){
+      middle := (start + end) / 2;
+      if(start > end){
+          //not found
+          return size;
+      };
+      if(array[middle] > value){
+        end := middle - 1;
+      }else if(array[middle] == value){
+          return middle;
+      }else{
+        start := middle + 1;
       }
-    }
-  };
+    };
+    return middle;
 
-  public func deleteListElement(l : List.List<Nat>, ele_ : Nat) : List.List<Nat>{
-    var preElement = getPreElement(l, ele_);
-    switch(preElement){
-      case null { null };
-      case (?(tE, nl)){
-        switch(nl){
-          case null { null };
-          case (?(nE, nnl)){
-            ?(tE, nnl)
-          }
-        }
-      }
-    }
   };
 
 

@@ -12,6 +12,7 @@ import UserDB "./UserDB";
 import LikeDB "./LikeDB";
 import CommentDB "./CommentDB";
 import ContentDB "./ContentDB";
+import tools "../Module/tools";
 
 module{
     type TID = Tweet.TID;
@@ -222,38 +223,26 @@ module{
         * get user older five tweets
         * 
         */
-        public func getUserOlderFiveTweets(user : Principal, number : Nat) : ?[var ShowTweet]{
+        public func getUserOlderFiveTweets(user : Principal, tid : Nat) : ?[ShowTweet]{
             switch(userDB.getUserAllTweets(user)){
                 case(null) { null };
-                case(?tids){
-                    var size : Nat = tids.size();
-                    if(number >= size){
-                        return null;
-                    }else{
-                        var i : Nat = 1;
-                        var tempArray = Array.init<ShowTweet>(size, Tweet.defaultType().defaultShowTweet);
-                        while((number + i < size -1) and (i < 5)){
-                            var tempTweet : ShowTweet = switch(getShowTweetById(size - 1 - number - i)){
-                                case(?tweet){ tweet };
-                                case(_) { Tweet.defaultType().defaultShowTweet };
-                            };
-                            tempArray[i-1] := tempTweet;
-                            i += 1;
-                        }; 
-                        ?tempArray
+                case(?tidArray){
+                    //return array
+                    let array : [var ShowTweet] = Array.init<ShowTweet>(5, Tweet.defaultType().defaultShowTweet);
+                    var key = tools.binarySearch(tidArray, tid);
+                    if(key == array.size()) { return null };                    
+                    var i = 0;
+                    loop{
+                        if(key - 1 - i < 0){ return ?(Array.freeze<ShowTweet>(array)); };
+                        array[i] := Option.unwrap<ShowTweet>(getShowTweetById(tidArray[key - 1 - i]));
+                        i := i + 1;
+                        if(i == 5){
+                            return ?(Array.freeze<ShowTweet>(array));
+                        };
                     }
                 };
             }
         };
-
-        
-        
-        /**
-        *The following part is comment moudle-------------------comment-------------------------
-        **/     
-
-
-
 
 
         /**

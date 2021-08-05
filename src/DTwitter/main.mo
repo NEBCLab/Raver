@@ -119,40 +119,18 @@ actor DTwitter{
     * get user newest 10 tweets (<= 10)
     */
     public query func getUserLastestTenTweets(uid : Principal) : async [ShowTweet]{
-        // user tweet tid
-        var array : [Nat] = switch(userDB.getUserAllTweets(uid)){
-            case ( null ){ [] };
-            case (?array) { array };
+        tweetDB.getUserLastestTenTweets(uid)
+    };
+
+    public query func getFollowLastestTenTweets(uid : Principal, lastTID : Nat) : async [ShowTweet]{
+        var tidArray = tweetDB.getFollowLastestTenTweets(uid, lastTID);
+        var tempArray = Array.init<ShowTweet>(tidArray.size(), Tweet.defaultType().defaultShowTweet);
+        var i = 0;
+        for(k in tidArray.vals()){
+            tempArray[i] := Option.unwrap<ShowTweet>(tweetDB.getShowTweetById(k));
+            i := i + 1;
         };
-        let tweets : [var ShowTweet] = Array.init<ShowTweet>(10, Tweet.defaultType().defaultShowTweet);
-        var i : Nat = 0;
-        if(array.size() >= 10){
-            while(i < 10){
-                switch(tweetDB.getShowTweetById(array[array.size() - i - 1])){
-                    case(null) {
-                        i += 1;
-                    };
-                    case(?tweet) { 
-                        tweets[i] := tweet;
-                        i += 1;
-                    };
-                };
-            };
-            Array.freeze<ShowTweet>(tweets)
-        }else{
-            while(i < array.size()){
-                switch(tweetDB.getShowTweetById(array[array.size() - i -1])){
-                    case(null) {
-                        i += 1;
-                    };
-                    case(?tweet) { 
-                        i += 1;
-                        tweets[i] := tweet;
-                    };
-                };
-            };
-            Array.freeze<ShowTweet>(tweets)
-        }
+        Array.freeze<ShowTweet>(tempArray)
     };
 
 
@@ -182,12 +160,6 @@ actor DTwitter{
             };
         };
     };
-
-    /****/
-    // public shared(msg) func getFollowFiveTweets(follow : Principal, number : Nat) : async [ShowTweet]{
-    //     assert(userDB.isExist(follow));
-    //     tweetDB.getFollowFiveTweets(follow, number)
-    // };
 
 
     /**
@@ -255,15 +227,17 @@ actor DTwitter{
     * @param uid : user principal
     * @return [Principal] user followed by user  
     */
-    public query func getFollow(uid : Principal) : async [Principal]{
-        switch(userDB.getFollow(uid)){
-            case null{
-                throw Error.reject("no such user")
-            };
-            case(?array){
-                array
+    public query func getFollow(uid : Principal) : async [User]{
+        var followArray = userDB.getFollow(uid);
+        var userArray = Array.init<User>(followArray.size(), User.defaultType().defaultUser);
+        var count = 0;
+        while(count < followArray.size()){
+            userArray[count] := switch(userDB.getUserProfile(followArray[count])){
+                case null{User.defaultType().defaultUser};
+                case(?user){user};
             };
         };
+        Array.freeze<User>(userArray)
     };
 
     /**
@@ -272,15 +246,17 @@ actor DTwitter{
     * @param uid : user principal
     * @return [Principal] user followed by user  
     */
-    public query func getFollower(uid : Principal) : async [Principal]{
-        switch(userDB.getFollower(uid)){
-            case null{
-                throw Error.reject("no such user")
-            };
-            case(?array){
-                array
+    public query func getFollower(uid : Principal) : async [User]{
+        var followerArray = userDB.getFollower(uid);
+        var userArray = Array.init<User>(followerArray.size(), User.defaultType().defaultUser);
+        var count = 0;
+        while(count < followerArray.size()){
+            userArray[count] := switch(userDB.getUserProfile(followerArray[count])){
+                case null{User.defaultType().defaultUser};
+                case(?user){user};
             };
         };
+        Array.freeze<User>(userArray)
     };
 
     public query func isTwoUserFollowEachOther(user_A : Principal, user_B : Principal) : async Bool{

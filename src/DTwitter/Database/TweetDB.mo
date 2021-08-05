@@ -65,6 +65,10 @@ module{
             }
         };
 
+        public func getLastestTweetId() : Nat{
+            tid
+        };
+
         /**
         * delete tweet from tweet map
         * @param tid : user's Principal
@@ -136,12 +140,83 @@ module{
             }
         };
 
-        /**
-        * @return the lastest tid
-        */
-        public func getLastestTweetId() : Nat{
-            tid
+        public func getFollowLastestTenTweets(uid : Principal, lastTID : Nat) : [Nat]{
+            var followArray = userDB.getFollow(uid);
+            var tweetArray = Array.init<[Nat]>(followArray.size(), []);
+            var count = 0; var result_count = 0;
+            var result = Array.init<Nat>(10,0);
+            var allSize=0;
+            for(x in followArray.vals()){
+                tweetArray[count] := switch(userDB.getUserAllTweets(uid)){
+                    case null{[]};
+                    case(?array){
+                        allSize+=array.size();
+                        array
+                    };
+                };
+                count+=1;
+            };
+            var i = 1;
+            var hasSel = Array.init<Nat>(followArray.size(),1);
+            while(i <= 10 and i <= allSize){
+                count := 0;
+                var maxn=0;
+                var maxn_count=0;
+                while(count < followArray.size()){
+                    if(tweetArray[count][tweetArray[count].size()-hasSel[count]] > maxn){
+                        maxn := tweetArray[count][tweetArray[count].size()-hasSel[count]];
+                        maxn_count := count;
+                    };
+                    count+=1;
+                };
+                if(maxn <= lastTID){
+                    return Array.freeze<Nat>(result);
+                };
+                hasSel[maxn_count]+=1;
+                result[result_count]:=maxn;
+                result_count+=1;
+                i+=1;
+            };
+            Array.freeze<Nat>(result)
         };
+
+
+        public func getUserLastestTenTweets(uid : Principal) : [ShowTweet]{
+        // user tweet tid
+        var array : [Nat] = switch(userDB.getUserAllTweets(uid)){
+            case ( null ){ [] };
+            case (?array) { array };
+        };
+        let tweets : [var ShowTweet] = Array.init<ShowTweet>(10, Tweet.defaultType().defaultShowTweet);
+        var i : Nat = 0;
+        if(array.size() >= 10){
+            while(i < 10){
+                switch(getShowTweetById(array[array.size() - i - 1])){
+                    case(null) {
+                        i += 1;
+                    };
+                    case(?tweet) { 
+                        tweets[i] := tweet;
+                        i += 1;
+                    };
+                };
+            };
+            Array.freeze<ShowTweet>(tweets)
+        }else{
+            while(i < array.size()){
+                switch(getShowTweetById(array[array.size() - i -1])){
+                    case(null) {
+                        i += 1;
+                    };
+                    case(?tweet) { 
+                        i += 1;
+                        tweets[i] := tweet;
+                    };
+                };
+            };
+            Array.freeze<ShowTweet>(tweets)
+        }
+    };
         
         /*
         * get user older five tweets

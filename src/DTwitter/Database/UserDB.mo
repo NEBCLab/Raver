@@ -253,33 +253,33 @@ module{
         };
 
 
-        public func getFollow(user : Principal) : ?[Principal]{
+        public func getFollow(user : Principal) : [Principal]{
             if(isUserExist(user)){
                 switch(follow.get(user)){
                     case null {
-                        Option.make<[Principal]>([])
+                        []
                     };
                     case(?set){
-                        Option.make<[Principal]>(TrieSet.toArray<Principal>(set))
+                        TrieSet.toArray<Principal>(set)
                     };
                 };
             }else{
-                null
+                []
             };      
         };
 
-        public func getFollower(user : Principal) : ?[Principal]{
+        public func getFollower(user : Principal) : [Principal]{
             if(isUserExist(user)){
                 switch(follower.get(user)){
                     case null {
-                        Option.make<[Principal]>([])
+                        []
                     };
                     case(?set){
-                        Option.make<[Principal]>(TrieSet.toArray<Principal>(set))
+                        TrieSet.toArray<Principal>(set)
                     };
                 };
             }else{
-                null
+                []
             };
         };
 

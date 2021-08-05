@@ -3,6 +3,7 @@ import Nat "mo:base/Nat";
 import Hash "mo:base/Hash";
 import Content "../Module/Content";
 import HashMap "mo:base/HashMap";
+import Iter "mo:base/Iter";
 
 module {
 
@@ -10,9 +11,9 @@ module {
     
     //content databse control content database 
     public class ContentDB(){
-        
+
         // Content id <-> Content content
-        private var contentMap = HashMap.HashMap<Nat, Content>(1, Nat.equal, Hash.hash);
+        private let contentMap = HashMap.HashMap<Nat, Content>(1, Nat.equal, Hash.hash);
 
         /*
         * add content

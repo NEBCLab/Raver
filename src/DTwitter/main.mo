@@ -27,6 +27,7 @@ actor DTwitter{
             avatarimg = avatarimg;
         })
     };
+    
 
     /**
     * delete user

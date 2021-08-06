@@ -105,7 +105,7 @@ actor DTwitter{
     //get user's all show tweet
     public query func getUserAllTweets(uid : Principal) : async [ShowTweet]{
         switch(userDB.getUserAllTweets(uid)){
-            case null { throw Error.reject("no such user") };
+            case null { throw Error.reject("no tweets has been found") };
             case (?array){
                 var tempArray = Array.init<ShowTweet>(array.size(), Tweet.defaultType().defaultShowTweet);
                 var i = 0;

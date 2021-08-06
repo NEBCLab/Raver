@@ -10,6 +10,7 @@ import Option "mo:base/Option";
 actor DTwitter{
     type User = User.User;
     type ShowTweet = Tweet.showTweet;
+    type ShowUser = User.showUser;
     private var userDB = UserDB.userDB();
     private var tweetDB = TweetDB.tweetDB(userDB);
 
@@ -74,6 +75,12 @@ actor DTwitter{
         }
     };
 
+    public query func getShowUserProfile(uid : Principal) : async ShowUser{
+        switch(userDB.getShowUserProfile(uid)){
+            case(?showuser){ showuser };
+            case(_){ throw Error.reject("no such user") };
+        }
+    };
     /**
     * create a tweet 
     * @param topic : Text -> tweet topic

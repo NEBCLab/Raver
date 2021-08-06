@@ -12,11 +12,21 @@ module {
     // avatar img url
     public type Avatarimg = Text;
 
+    public type BIO = Text;
+
     public type User = {
         uid : UID;
         nickname : NickName;
         username : UserName;
         avatarimg : Avatarimg;
+    };
+
+    public type showUser = {
+        uid : UID;
+        nickname : NickName;
+        username : UserName;
+        avatarimg : Avatarimg;
+        bio : BIO;
     };
 
     //private let defaultPrincipal : Principal.Principal = Principal.fromText("default");
@@ -27,6 +37,13 @@ module {
             nickname = "default";
             username = "unset";
             avatarimg = "default";
+        };
+        public let defaultShowUser : showUser = {
+            uid = defaultPrincipal;
+            nickname = "default";
+            username = "unset";
+            avatarimg = "default";
+            bio = "这个人很懒，什么都没有留下~";
         };
     };
 };

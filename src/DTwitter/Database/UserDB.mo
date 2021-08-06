@@ -13,6 +13,7 @@ import TrieSet "mo:base/TrieSet";
 module{
     type User = User.User;
     type Tweet = Tweet.Tweet;
+    type ShowUser = User.showUser;
 
     public class userDB(){
         // uid -> user profile
@@ -65,6 +66,7 @@ module{
                 userDB.delete(uid);
                 userTweet.delete(uid);
                 deleteFollowMap(uid);
+                bioMap.delete(uid);
                 switch(getUserNameByPrincipal(uid)){
                     case null{
                     };
@@ -107,6 +109,21 @@ module{
         public func getUserProfile(uid : Principal) : ?User{
             switch(userDB.get(uid)){
                 case (?user){ ?user };
+                case(_) { null };
+            }
+        };
+
+        public func getShowUserProfile(uid : Principal) : ?ShowUser{
+            switch(userDB.get(uid)){
+                case (?user){ 
+                     ?{
+                        uid = user.uid;
+                        nickname = user.nickname;
+                        username = user.username;
+                        avatarimg = user.avatarimg;
+                        bio = getBio(user.uid);
+                     }
+                };
                 case(_) { null };
             }
         };
@@ -350,7 +367,7 @@ module{
         public func getBio(uid : Principal) : Text{
             switch(bioMap.get(uid)){
                 case null{
-                    ""
+                    "这个人很懒，什么都没有留下~"
                 };
                 case(?text){
                     text

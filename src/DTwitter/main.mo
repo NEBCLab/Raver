@@ -83,7 +83,11 @@ actor DTwitter{
     */
     //todo : topic
     public shared(msg) func addTweet(content : Text, time : Text, url : Text) : async Bool{
-        tweetDB.createTweet(content, time, msg.caller, url)
+        if(tweetDB.createTweet(content, time, msg.caller, url) != 0){
+            true
+        }else{
+            false
+        }
     };
 
     /**
@@ -91,7 +95,7 @@ actor DTwitter{
     * @param msg : msg
     * @return user's all tweet id array : [Nat]
     */
-    public query func getUserAllTID(uid : Principal) : async [Nat]{
+    public query func getUserAllTid(uid : Principal) : async [Nat]{
         switch(userDB.getUserAllTweets(uid)){
             case ( null ){ [] };
             case (?array) { array };
@@ -122,13 +126,12 @@ actor DTwitter{
         tweetDB.getUserLastestTenTweets(uid)
     };
 
-
     //获取关注用户及自己的最新10条post
-    public query func getFollowLastestTenTweets(uid : Principal, lastTID : Nat) : async [ShowTweet]{
-        var tidArray = tweetDB.getFollowLastestTenTweets(uid, lastTID);
-        var tempArray = Array.init<ShowTweet>(tidArray.size(), Tweet.defaultType().defaultShowTweet);
+    public query func getFollowLastestTenTweets(uid : Principal, lastTid : Nat) : async [ShowTweet]{
+        var TidArray = tweetDB.getFollowLastestTenTweets(uid, lastTid);
+        var tempArray = Array.init<ShowTweet>(TidArray.size(), Tweet.defaultType().defaultShowTweet);
         var i = 0;
-        for(k in tidArray.vals()){
+        for(k in TidArray.vals()){
             tempArray[i] := Option.unwrap<ShowTweet>(tweetDB.getShowTweetById(k));
             i := i + 1;
         };
@@ -148,8 +151,8 @@ actor DTwitter{
 
 
     /**
-    * get tweet by tid
-    * @param tid : tweet id
+    * get tweet by Tid
+    * @param Tid : tweet id
     * @return whrow Error or return tweet
     */
     public query func getTweetById(tid : Nat) : async ShowTweet{
@@ -163,17 +166,13 @@ actor DTwitter{
         }
     };
 
-    public query func getLastestTweetId() : async Nat{
+    public query func getLastestTweeTid() : async Nat{
         tweetDB.getLastestTweetId()
     };
 
-    // public shared(msg) func reTweet(tid : Nat) : async Bool{
-    //     tweetDB.reTweet(tid, msg.caller);
-    // };
-
     /*
     * if tweet is existed
-    * @param tid tweet id
+    * @param Tid tweet id
     * @reutrn existed or do not exist
     */
     public query func isExist(tid : Nat) : async Bool{
@@ -193,13 +192,6 @@ actor DTwitter{
         };
         tweetDB.changeTweet(tid, content, time, msg.caller, url)
     };
-
-    // public query func getTopicAllTweet(topic : Text) : async [Nat]{
-    //     switch(tweetDB.findTweetByTopic(topic)){
-    //         case(null){ [] };
-    //         case(?array){ array };
-    //     }
-    // };
 
 
     /**
@@ -281,6 +273,39 @@ actor DTwitter{
         var stepTwo = userDB.cancelFollower(follow, msg.caller);
         if(stepOne == 1 and stepTwo == 1) true
         else false
+    };
+
+    /**                Cooment                                 **/
+    public shared(msg) func addComment(text : Text, time : Text, uid : Principal, url : Text, cid : Nat) : async Bool{
+        let tid = tweetDB.createTweet(text, time, msg.caller, url);
+        tweetDB.addComment(tid, cid);
+    };
+
+    public shared(msg) func deleteComment(tid : Nat, cid : Nat) : async Bool{
+        if(msg.caller != Option.unwrap<Principal>(userDB.getUidByTid(tid))){
+            false
+        }else{
+            tweetDB.deleteComment(tid, cid);
+        }
+    };
+
+    public query func getTweetAllComments(tid : Nat) : async [ShowTweet]{
+        switch(tweetDB.getTweetAllComments(tid)){
+            case null { throw Error.reject(" no such tweet ") };
+            case (?tweets){ tweets };
+        }
+    };
+
+    public query func getTweetCommentNumber(tid : Nat) : async Nat{
+        tweetDB.getCommentNumber(tid)
+    };
+
+    public shared(msg) func deleteTweetAllComment(tid : Nat) : async Bool{
+        if(msg.caller == Option.unwrap<Principal>(userDB.getUidByTid(tid))){
+            tweetDB.deleteTweetAllComment(tid)
+        }else{
+            throw Error.reject("you have no right");
+        }
     };
 
 

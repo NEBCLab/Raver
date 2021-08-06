@@ -74,16 +74,7 @@ module{
             relation.delete(tid);
             true
         };
-        
-
-
-
-
-        //retweet todo
-
-
-
-
+    
 
     };
 

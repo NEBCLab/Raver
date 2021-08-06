@@ -41,13 +41,17 @@ module{
         // tweet content
         private var contentDB = ContentDB.ContentDB();
 
-        public func createTweet(text : Text, time : Text, uid : Principal, url : Text) : Bool{
+        public func createTweet(text : Text, time : Text, uid : Principal, url : Text) : Nat{
             let tid = increaseTID();
             let tweet : Tweet.Tweet = { tid = tid };
             let content = contentDB.make(text, time, url);
             tweetMap.put(tid, tweet);
             ignore contentDB.add(tid, content);
-            userDB.addTweet(uid, tid);
+            if(userDB.addTweet(uid, tid)){
+                tid
+            }else{
+                0
+            }
             //comment
             //likeDB
             //topicDB.addTopicTweet()
@@ -283,10 +287,7 @@ module{
         public func getCommentNumber(tid : Nat) : Nat{
             commentDB.getNumber(tid)
         };
-
-
-
-
+        
         /**
         *The following part is like moudle-------------------like-------------------------
         **/

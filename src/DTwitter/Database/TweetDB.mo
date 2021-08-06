@@ -191,46 +191,42 @@ module{
 
 
         public func getUserLastestTenTweets(uid : Principal) : [ShowTweet]{
-        // user tweet tid
-        var array : [Nat] = switch(userDB.getUserAllTweets(uid)){
-            case ( null ){ [] };
-            case (?array) { array };
+            // user tweet tid
+            var array : [Nat] = switch(userDB.getUserAllTweets(uid)){
+                case ( null ){ [] };
+                case (?array) { array };
+            };
+            let tweets : [var ShowTweet] = Array.init<ShowTweet>(10, Tweet.defaultType().defaultShowTweet);
+            var i : Nat = 0;
+            if(array.size() >= 10){
+                while(i < 10){
+                    switch(getShowTweetById(array[array.size() - i - 1])){
+                        case(null) {
+                            i += 1;
+                        };
+                        case(?tweet) { 
+                            tweets[i] := tweet;
+                            i += 1;
+                        };
+                    };
+                };
+                Array.freeze<ShowTweet>(tweets)
+            }else{
+                while(i < array.size()){
+                    switch(getShowTweetById(array[array.size() - i -1])){
+                        case(null) {
+                            i += 1;
+                        };
+                        case(?tweet) { 
+                            i += 1;
+                            tweets[i] := tweet;
+                        };
+                    };
+                };
+                Array.freeze<ShowTweet>(tweets)
+            }
         };
-        let tweets : [var ShowTweet] = Array.init<ShowTweet>(10, Tweet.defaultType().defaultShowTweet);
-        var i : Nat = 0;
-        if(array.size() >= 10){
-            while(i < 10){
-                switch(getShowTweetById(array[array.size() - i - 1])){
-                    case(null) {
-                        i += 1;
-                    };
-                    case(?tweet) { 
-                        tweets[i] := tweet;
-                        i += 1;
-                    };
-                };
-            };
-            Array.freeze<ShowTweet>(tweets)
-        }else{
-            while(i < array.size()){
-                switch(getShowTweetById(array[array.size() - i -1])){
-                    case(null) {
-                        i += 1;
-                    };
-                    case(?tweet) { 
-                        i += 1;
-                        tweets[i] := tweet;
-                    };
-                };
-            };
-            Array.freeze<ShowTweet>(tweets)
-        }
-    };
         
-        /*
-        * get user older five tweets
-        * 
-        */
         public func getUserOlderFiveTweets(user : Principal, tid : Nat) : ?[ShowTweet]{
             switch(userDB.getUserAllTweets(user)){
                 case(null) { null };
@@ -251,6 +247,44 @@ module{
                 };
             }
         };
+
+        /********************* COMMENT DATABASE ************************************************/
+        //the type of tid and cid is TID, tid : commented tweet, cid : comment tweet
+        public func addComment(tid : Nat, cid : Nat) : Bool{
+            commentDB.add(tid, cid)
+        };
+
+        //the type of tid and cid is TID, tid : commented tweet, cid : comment tweet
+        public func deleteComment(tid : Nat, cid : Nat) : Bool{
+            commentDB.delete(tid, cid)
+        };
+
+        public func getTweetAllComments(tid : Nat) : ?[ShowTweet]{
+            switch(commentDB.getTweetAllComments(tid)){
+                case null { null };
+                case (?tweetId){
+                    let size = tweetId.size();
+                    var backArray = Array.init<ShowTweet>(size, Tweet.defaultType().defaultShowTweet);
+                    var i = 0;
+                    for(k in tweetId.vals()){
+                        //WARNNING Error
+                        backArray[i] := Option.unwrap<ShowTweet>(getShowTweetById(k));
+                        i := i + 1;
+                    };
+                    ?Array.freeze<ShowTweet>(backArray);
+                };
+            }
+        };
+
+        public func deleteTweetAllComment(tid : Nat) : Bool{
+            commentDB.deleteAllComment(tid)
+        };
+
+        public func getCommentNumber(tid : Nat) : Nat{
+            commentDB.getNumber(tid)
+        };
+
+
 
 
         /**
@@ -284,8 +318,6 @@ module{
             tid := tid + 1;
             getLastestTweetId()
         };
-
-
 
     };
 };

@@ -122,8 +122,8 @@ actor DTwitter{
     /*
     * get user newest 10 tweets (<= 10)
     */
-    public query func getUserLastestTenTweets(uid : Principal) : async [ShowTweet]{
-        tweetDB.getUserLastestTenTweets(uid)
+    public shared(msg) func getUserLastestTenTweets() : async [ShowTweet]{
+        tweetDB.getUserLastestTenTweets(msg.caller)
     };
 
     //获取关注用户及自己的最新10条post

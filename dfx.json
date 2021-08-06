@@ -3,19 +3,6 @@
     "DTwitter": {
       "main": "src/DTwitter/main.mo",
       "type": "motoko"
-    },
-    "DTwitter_assets": {
-      "dependencies": [
-        "DTwitter"
-      ],
-      "frontend": {
-        "entrypoint": "src/DTwitter_assets/src/index.html"
-      },
-      "source": [
-        "src/DTwitter_assets/assets",
-        "dist/DTwitter_assets/"
-      ],
-      "type": "assets"
     }
   },
   "defaults": {

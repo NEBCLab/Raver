@@ -21,7 +21,7 @@ module {
 
     //private let defaultPrincipal : Principal.Principal = Principal.fromText("default");
     public class defaultType(){
-        private let defaultPrincipal : Principal = Principal.fromText("default");
+        private let defaultPrincipal : Principal = Principal.fromText("r7inp-6aaaa-aaaaa-aaabq-cai");
         public let defaultUser : User = {
             uid = defaultPrincipal;
             nickname = "default";

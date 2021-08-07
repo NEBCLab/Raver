@@ -145,12 +145,12 @@ module{
             }
         };
 
-        //获取关注用户及自己的最新10条post
-        public func getFollowLastestTenTweets(uid : Principal, lastTID : Nat) : [Nat]{
+        //获取关注用户及自己的最新20条post
+        public func getFollowLastest20Tweets(uid : Principal, lastTID : Nat) : [Nat]{
             var followArray = userDB.getFollow(uid);
             var tweetArray = Array.init<[Nat]>(followArray.size()+1, []);
             var count = 0; var result_count = 0;
-            var result = Array.init<Nat>(10,0);
+            var result = Array.init<Nat>(20,0);
             var allSize=0;
             for(x in followArray.vals()){
                 tweetArray[count] := switch(userDB.getUserAllTweets(x)){
@@ -171,7 +171,7 @@ module{
             };
             var i = 1;
             var hasSel = Array.init<Nat>(followArray.size()+1,1);
-            while(i <= 10 and i <= allSize){
+            while(i <= 20 and i <= allSize){
                 count := 0;
                 var maxn=0;
                 var maxn_count=0;
@@ -192,7 +192,53 @@ module{
             };
             Array.freeze<Nat>(result)
         };
-
+        //获取关注用户及自己的amount条最新post
+        public func getFollowLastestAmountTweets(uid : Principal, lastTID : Nat, amount : Nat) : [Nat]{
+            var followArray = userDB.getFollow(uid);
+            var tweetArray = Array.init<[Nat]>(followArray.size()+1, []);
+            var count = 0; var result_count = 0;
+            var result = Array.init<Nat>(amount,0);
+            var allSize=0;
+            for(x in followArray.vals()){
+                tweetArray[count] := switch(userDB.getUserAllTweets(x)){
+                    case null{[]};
+                    case(?array){
+                        allSize+=array.size();
+                        array
+                    };
+                };
+                count+=1;
+            };
+            tweetArray[count] := switch(userDB.getUserAllTweets(uid)){
+                case null{[]};
+                case(?array){
+                    allSize+=array.size();
+                    array
+                };
+            };
+            var i = 1;
+            var hasSel = Array.init<Nat>(followArray.size()+1,1);
+            while(i <= amount and i <= allSize){
+                count := 0;
+                var maxn=0;
+                var maxn_count=0;
+                while(count < followArray.size()+1){
+                    if(tweetArray[count][tweetArray[count].size()-hasSel[count]] > maxn){
+                        maxn := tweetArray[count][tweetArray[count].size()-hasSel[count]];
+                        maxn_count := count;
+                    };
+                    count+=1;
+                };
+                if(maxn <= lastTID){
+                    return Array.freeze<Nat>(result);
+                };
+                hasSel[maxn_count]+=1;
+                result[result_count]:=maxn;
+                result_count+=1;
+                i+=1;
+            };
+            Array.freeze<Nat>(result)
+        };
 
         public func getUserLastestTenTweets(uid : Principal) : [ShowTweet]{
             // user tweet tid
@@ -231,12 +277,12 @@ module{
             }
         };
         
-        public func getUserOlderFiveTweets(user : Principal, tid : Nat) : ?[ShowTweet]{
+        public func getUserOlder20Tweets(user : Principal, tid : Nat) : ?[ShowTweet]{
             switch(userDB.getUserAllTweets(user)){
                 case(null) { null };
                 case(?tidArray){
                     //return array
-                    let array : [var ShowTweet] = Array.init<ShowTweet>(5, Tweet.defaultType().defaultShowTweet);
+                    let array : [var ShowTweet] = Array.init<ShowTweet>(20, Tweet.defaultType().defaultShowTweet);
                     var key = tools.binarySearch(tidArray, tid);
                     if(key == array.size()) { return null };                    
                     var i = 0;
@@ -244,7 +290,7 @@ module{
                         if(key - 1 - i < 0){ return ?(Array.freeze<ShowTweet>(array)); };
                         array[i] := Option.unwrap<ShowTweet>(getShowTweetById(tidArray[key - 1 - i]));
                         i := i + 1;
-                        if(i == 5){
+                        if(i == 20){
                             return ?(Array.freeze<ShowTweet>(array));
                         };
                     }

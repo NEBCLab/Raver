@@ -133,9 +133,9 @@ actor DTwitter{
         tweetDB.getUserLastestTenTweets(msg.caller)
     };
 
-    //获取关注用户及自己的最新10条post
-    public query func getFollowLastestTenTweets(uid : Principal, lastTid : Nat) : async [ShowTweet]{
-        var TidArray = tweetDB.getFollowLastestTenTweets(uid, lastTid);
+    //获取关注用户及自己的最新20条post
+    public query func getFollowLastest20Tweets(uid : Principal, lastTid : Nat) : async [ShowTweet]{
+        var TidArray = tweetDB.getFollowLastest20Tweets(uid, lastTid);
         var tempArray = Array.init<ShowTweet>(TidArray.size(), Tweet.defaultType().defaultShowTweet);
         var i = 0;
         for(k in TidArray.vals()){
@@ -145,12 +145,23 @@ actor DTwitter{
         Array.freeze<ShowTweet>(tempArray)
     };
 
+    //获取关注用户及自己的最新amount条post
+    public query func getFollowLastestAmountTweets(uid : Principal, lastTid : Nat, amount : Nat) : async [ShowTweet]{
+        var TidArray = tweetDB.getFollowLastestAmountTweets(uid, lastTid, amount);
+        var tempArray = Array.init<ShowTweet>(TidArray.size(), Tweet.defaultType().defaultShowTweet);
+        var i = 0;
+        for(k in TidArray.vals()){
+            tempArray[i] := Option.unwrap<ShowTweet>(tweetDB.getShowTweetById(k));
+            i := i + 1;
+        };
+        Array.freeze<ShowTweet>(tempArray)
+    };
 
     /**
     * @param number : Nat -> [Tweet] size <= 5
     */
-    public query func getUserOlderFiveTweets(tid : Nat, uid : Principal) : async [ShowTweet]{
-        switch(tweetDB.getUserOlderFiveTweets(uid, tid)){
+    public query func getUserOlder20Tweets(tid : Nat, uid : Principal) : async [ShowTweet]{
+        switch(tweetDB.getUserOlder20Tweets(uid, tid)){
             case(null) { throw Error.reject(" error ") };
             case(?tweets){ tweets };
         }
@@ -362,7 +373,7 @@ actor DTwitter{
     public query func getBio(uid : Principal) : async Text{
         userDB.getBio(uid)
     };
-    public shared(msg) func putBio(uid : Principal, bioText : Text){
-        userDB.putBio(uid, bioText)
+    public shared(msg) func putBio(bioText : Text){
+        userDB.putBio(msg.caller, bioText)
     }
 };

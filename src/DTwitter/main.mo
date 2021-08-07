@@ -211,18 +211,25 @@ actor DTwitter{
     * @param uid : user principal
     * @return [Principal] user followed by user  
     */
-    public query func getFollow(uid : Principal) : async [User]{
+    public query func getFollow(uid : Principal) : async [ShowUser]{
         var followArray = userDB.getFollow(uid);
-        var userArray = Array.init<User>(followArray.size(), User.defaultType().defaultUser);
+        var userArray = Array.init<ShowUser>(followArray.size(), User.defaultType().defaultShowUser);
         var count = 0;
         while(count < followArray.size()){
-            userArray[count] := switch(userDB.getUserProfile(followArray[count])){
-                case null{User.defaultType().defaultUser};
-                case(?user){user};
+            userArray[count] := switch(userDB.getShowUserProfile(followArray[count])){
+                case null{User.defaultType().defaultShowUser};
+                case(?showuser){showuser};
             };
         };
-        Array.freeze<User>(userArray)
+        Array.freeze<ShowUser>(userArray)
     };
+
+
+    public query func getFollowAmount(uid : Principal) : async Nat{
+        var followArray = userDB.getFollow(uid);
+        followArray.size()
+    };
+
 
     /**
     * get user follower
@@ -230,18 +237,25 @@ actor DTwitter{
     * @param uid : user principal
     * @return [Principal] user followed by user  
     */
-    public query func getFollower(uid : Principal) : async [User]{
+    public query func getFollower(uid : Principal) : async [ShowUser]{
         var followerArray = userDB.getFollower(uid);
-        var userArray = Array.init<User>(followerArray.size(), User.defaultType().defaultUser);
+        var userArray = Array.init<ShowUser>(followerArray.size(), User.defaultType().defaultShowUser);
         var count = 0;
         while(count < followerArray.size()){
-            userArray[count] := switch(userDB.getUserProfile(followerArray[count])){
-                case null{User.defaultType().defaultUser};
-                case(?user){user};
+            userArray[count] := switch(userDB.getShowUserProfile(followerArray[count])){
+                case null{User.defaultType().defaultShowUser};
+                case(?showuser){showuser};
             };
         };
-        Array.freeze<User>(userArray)
+        Array.freeze<ShowUser>(userArray)
     };
+
+
+    public query func getFollowerAmount(uid : Principal) : async Nat{
+        var followerArray = userDB.getFollower(uid);
+        followerArray.size()
+    };
+
 
     public query func isTwoUserFollowEachOther(user_A : Principal, user_B : Principal) : async Bool{
         var result = userDB.isAFollowedByB(user_A, user_B);

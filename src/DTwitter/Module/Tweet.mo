@@ -3,12 +3,6 @@ import Hash "mo:base/Hash";
 import User "./User";
 
 module {
-    //type User = User.User;
-    // private type User = {
-    //     uid : Principal;
-    //     uname : Text;
-    //     avatarimg : Text;
-    // };
     //Tweet ID
     public type TID = Nat;
     //Tweet content
@@ -24,7 +18,22 @@ module {
     //存储的tweet 当前版本要将字段全部转换为相应数据库的主键
     public type Tweet = {
         tid : Nat;
+        
+        // parentTid = 0  no parent tweet
+        // parentTid < 0 the type of this tweet is comment, comment is parentTid
+        // parentTid > 0 the type of this tweet is  retweet
+        parentTid : Int;
         //visiable : todo
+    };
+
+    public type parentTweet = {
+        // cor : comment or retweet : 0 -> comment, retweet : 1
+        cor : Nat;
+        tid : Nat;
+        content : Text;
+        time : Text;
+        user : User.User;
+        url : Text;
     };
 
     /*
@@ -40,11 +49,13 @@ module {
         url : Text;
         likeNumber : Nat;
         commentNumber : Nat;
+        parentTweet : ?parentTweet;
     };
 
     public class defaultType() {
         public let defaultTweet : Tweet = {
             tid = 0;
+            parentTid = 0;
         };
 
         public let defaultShowTweet : showTweet = {
@@ -55,6 +66,7 @@ module {
             url = "default";
             likeNumber = 0;
             commentNumber = 0;
+            parentTweet = null;
         };
     };
 

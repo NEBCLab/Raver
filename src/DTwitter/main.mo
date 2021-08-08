@@ -89,12 +89,17 @@ actor DTwitter{
     * @return bool : if add tweet successfully
     */
     //todo : topic
-    public shared(msg) func addTweet(content : Text, time : Text, url : Text) : async Bool{
-        if(tweetDB.createTweet(content, time, msg.caller, url) != 0){
+    public shared(msg) func addTweet(content : Text, time : Text, url : Text, parentTid : Int) : async Bool{
+        if(tweetDB.createTweet(content, time, msg.caller, url, parentTid) != 0){
             true
         }else{
             false
         }
+    };
+
+    
+    public shared(msg) func reTweet(content : Text, time : Text, url : Text, parentTid : Int) : async Bool{
+        addTweet(content, time, msg.caller, url, parentTid)
     };
 
     /**
@@ -308,8 +313,8 @@ actor DTwitter{
     };
 
     /**                Cooment                                 **/
-    public shared(msg) func addComment(text : Text, time : Text, uid : Principal, url : Text, cid : Nat) : async Bool{
-        let tid = tweetDB.createTweet(text, time, msg.caller, url);
+    public shared(msg) func addComment(text : Text, time : Text, uid : Principal, url : Text, cid : Nat, parentTid : Int) : async Bool{
+        let tid = tweetDB.createTweet(text, time, msg.caller, url, parentTid);
         tweetDB.addComment(tid, cid);
     };
 

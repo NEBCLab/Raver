@@ -13,11 +13,13 @@ import LikeDB "./LikeDB";
 import CommentDB "./CommentDB";
 import ContentDB "./ContentDB";
 import tools "../Module/tools";
+import Int "mo:base/Int";
 
 module{
     type TID = Tweet.TID;
     type UserDB = UserDB.userDB;
     type ShowTweet = Tweet.showTweet;
+
 
     //tweet databse control relation betweet tweets, other database storage data
     public class tweetDB(userDB : UserDB){        
@@ -41,9 +43,18 @@ module{
         // tweet content
         private var contentDB = ContentDB.ContentDB();
 
-        public func createTweet(text : Text, time : Text, uid : Principal, url : Text) : Nat{
+        /**
+        * @param parentTid :         
+                0  no parent tweet
+                > 0 the type of this tweet is comment, comment is parentTid
+                < 0 the type of this tweet is retweet, retweeted tweet tid is parentTid
+        */
+        public func createTweet(text : Text, time : Text, uid : Principal, url : Text, parentTid : Int) : Nat{
             let tid = increaseTID();
-            let tweet : Tweet.Tweet = { tid = tid };
+            let tweet : Tweet.Tweet = {
+                tid = tid ;
+                parentTid = parentTid;
+            };
             let content = contentDB.make(text, time, url);
             tweetMap.put(tid, tweet);
             ignore contentDB.add(tid, content);
@@ -52,9 +63,6 @@ module{
             }else{
                 0
             }
-            //comment
-            //likeDB
-            //topicDB.addTopicTweet()
         };
 
 
@@ -109,18 +117,14 @@ module{
         * @return ?TID : TID or null
         */
         public func changeTweet(tid : Nat, text : Text, time : Text, uid : Principal, url : Text) : Bool{
-            //change tweet topic
-            let oldTweet = switch(getShowTweetById(tid)){
-                // ERROR WORNING
-                case(null) { Tweet.defaultType().defaultTweet };
-                case(?t) { t };
-            };
             if (contentDB.replace(tid, contentDB.make(text, time, url))){
                 true
             }else{
                 false
             }
         };
+
+
 
 
         /**
@@ -130,7 +134,7 @@ module{
             if(isTweetExist(tid)){
                 let con_ = Option.unwrap<Content.content>(contentDB.get(tid));
                 let uid = Option.unwrap<Principal>(userDB.getUidByTid(tid));
-
+                let parentTweet_ = makeParentTweetByTid(tid);
                 ?{
                     tid = tid;
                     content = con_.text;
@@ -139,6 +143,7 @@ module{
                     url = con_.url;
                     likeNumber = likeDB.likeAmount(tid);
                     commentNumber = commentDB.getNumber(tid);
+                    parentTweet = ?parentTweet_;
                 }
             }else{
                 null
@@ -192,6 +197,7 @@ module{
             };
             Array.freeze<Nat>(result)
         };
+
         //获取关注用户及自己的amount条最新post
         public func getFollowLastestAmountTweets(uid : Principal, lastTID : Nat, amount : Nat) : [Nat]{
             var followArray = userDB.getFollow(uid);
@@ -365,6 +371,23 @@ module{
             tid := tid + 1;
             getLastestTweetId()
         };
+
+        private func makeParentTweetByTid(tid : Nat) : Tweet.parentTweet{
+            let tweet = Option.unwrap<Tweet.Tweet>(tweetMap.get(tid));
+            // cor : comment or retweet : 0 -> comment, retweet : 1
+            let cor = if((tweet.parentTid) < 0){ 0 } else { 1 };
+            let parT_ = Int.abs(tweet.parentTid);
+            let showTweet = Option.unwrap<ShowTweet>(getShowTweetById(parT_));
+            {
+                cor = cor;
+                tid = showTweet.tid;
+                content = showTweet.content;
+                time = showTweet.time;
+                user = showTweet.user;
+                url = showTweet.url;
+            }
+        };
+
 
     };
 };

@@ -75,7 +75,18 @@ actor DTwitter{
         }
     };
 
-    public query func getShowUserProfile(uid : Principal) : async ShowUser{
+    public query func getShowUserProfileByPrincipal(uid : Principal) : async ShowUser{
+        switch(userDB.getShowUserProfile(uid)){
+            case(?showuser){ showuser };
+            case(_){ throw Error.reject("no such user") };
+        }
+    };
+
+    public query func getShowUserProfileByUserName(userName : Text) : async ShowUser{
+        var uid = switch(userDB.getPrincipalByUserName(userName)){
+            case null{throw Error.reject("can't find this username")};
+            case(?principal){principal};
+        };
         switch(userDB.getShowUserProfile(uid)){
             case(?showuser){ showuser };
             case(_){ throw Error.reject("no such user") };

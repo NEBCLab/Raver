@@ -162,8 +162,7 @@ actor DTwitter{
         var TidArray = tweetDB.getFollowLastest20Tweets(uid, lastTid);
         var size = 0;
         for(k in TidArray.vals()){
-            if(k == 0) break;
-            size := i + 1; 
+            if(k != 0) size := size + 1; 
         };
         var tempArray = Array.init<ShowTweet>(size, Tweet.defaultType().defaultShowTweet);
         var i = 0;
@@ -180,8 +179,7 @@ actor DTwitter{
         var TidArray = tweetDB.getFollowLastestAmountTweets(uid, lastTid, amount);
         var size = 0;
         for(k in TidArray.vals()){
-            if(k == 0) break;
-            size := i + 1; 
+            if(k != 0) size := size + 1; 
         };
         var tempArray = Array.init<ShowTweet>(size, Tweet.defaultType().defaultShowTweet);
         var i = 0;

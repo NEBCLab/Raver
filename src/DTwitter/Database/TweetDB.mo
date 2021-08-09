@@ -293,7 +293,9 @@ module{
                     if(key == array.size()) { return null };                    
                     var i = 0;
                     loop{
-                        if(key - 1 - i < 0){ return ?(Array.freeze<ShowTweet>(array)); };
+                        // under flow
+                        var t : Int = key - 1 - i;
+                        if(t < 0) { return ?(Array.freeze<ShowTweet>(array)); };
                         array[i] := Option.unwrap<ShowTweet>(getShowTweetById(tidArray[key - 1 - i]));
                         i := i + 1;
                         if(i == 20){

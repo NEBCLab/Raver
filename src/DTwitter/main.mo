@@ -342,7 +342,7 @@ actor DTwitter{
 
     public query func getTweetAllComments(tid : Nat) : async [ShowTweet]{
         switch(tweetDB.getTweetAllComments(tid)){
-            case null { throw Error.reject(" no such tweet ") };
+            case null { [] };
             case (?tweets){ tweets };
         }
     };

@@ -181,7 +181,8 @@ module{
                 var maxn=0;
                 var maxn_count=0;
                 while(count < followArray.size()+1){
-                    if(tweetArray[count][tweetArray[count].size()-hasSel[count]] > maxn){
+                    var t : Int = tweetArray[count].size()-hasSel[count];
+                    if(t >= 0 and tweetArray[count][tweetArray[count].size()-hasSel[count]] > maxn){
                         maxn := tweetArray[count][tweetArray[count].size()-hasSel[count]];
                         maxn_count := count;
                     };
@@ -229,7 +230,8 @@ module{
                 var maxn=0;
                 var maxn_count=0;
                 while(count < followArray.size()+1){
-                    if(tweetArray[count][tweetArray[count].size()-hasSel[count]] > maxn){
+                    var t : Int = tweetArray[count].size()-hasSel[count];
+                    if(t >= 0 and tweetArray[count][tweetArray[count].size()-hasSel[count]] > maxn){
                         maxn := tweetArray[count][tweetArray[count].size()-hasSel[count]];
                         maxn_count := count;
                     };
@@ -291,11 +293,10 @@ module{
                     let array : [var ShowTweet] = Array.init<ShowTweet>(20, Tweet.defaultType().defaultShowTweet);
                     var key = tools.binarySearch(tidArray, tid);
                     if(key == array.size()) { return null };                    
-                    var i = 0;
+                    var i : Nat = 0;
                     loop{
-                        // under flow
                         var t : Int = key - 1 - i;
-                        if(t < 0) { return ?(Array.freeze<ShowTweet>(array)); };
+                        if(t < 0){ return ?(Array.freeze<ShowTweet>(array)); };
                         array[i] := Option.unwrap<ShowTweet>(getShowTweetById(tidArray[key - 1 - i]));
                         i := i + 1;
                         if(i == 20){

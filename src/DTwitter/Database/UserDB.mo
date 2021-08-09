@@ -42,6 +42,7 @@ module{
                 false
             }else{
                 userDB.put(user.uid, user);
+                userName2Uid.put(user.username, user.uid);
                 true
             }
         };
@@ -95,7 +96,19 @@ module{
                     };
                 };
                 assert(uid == user_uid);
+                var name_uid = switch(userName2Uid.get(user.username)){
+                    case null{
+                        ignore userDB.replace(uid, user);
+                        ignore userName2Uid.replace(user.username, uid);
+                        return true;
+                    };
+                    case(?principal){
+                        principal;
+                    };
+                };
+                if(isUserNameUsed(user.username) and name_uid!=uid ){return false;};
                 ignore userDB.replace(uid, user);
+                ignore userName2Uid.replace(user.username, uid);
                 true
             }else{
                 false
@@ -305,7 +318,7 @@ module{
                 if(isUserExist(user_B)){
                     switch(follower.get(user_A)){
                         case null {
-                            return 10; //Unknown Error
+                            return 10; //No one follows A
                         };
                         case(?set){
                             if(TrieSet.mem<Principal>(set, user_B, Principal.hash(user_B),Principal.equal)) return 1;

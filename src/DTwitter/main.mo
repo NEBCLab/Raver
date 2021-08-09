@@ -108,7 +108,6 @@ actor DTwitter{
         }
     };
 
-    
     public shared(msg) func reTweet(content : Text, time : Text, url : Text, parentTid : Int) : async Bool{
         if(tweetDB.createTweet(content, time, msg.caller, url, parentTid) != 0){
             true

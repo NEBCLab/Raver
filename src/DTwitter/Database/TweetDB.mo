@@ -134,7 +134,7 @@ module{
             if(isTweetExist(tid)){
                 let con_ = Option.unwrap<Content.content>(contentDB.get(tid));
                 let uid = Option.unwrap<Principal>(userDB.getUidByTid(tid));
-                let parentTweet_ = makeParentTweetByTid(tid);
+                let parentTweet_ : ?Tweet.parentTweet = makeParentTweetByTid(tid);
                 ?{
                     tid = tid;
                     content = con_.text;
@@ -143,7 +143,7 @@ module{
                     url = con_.url;
                     likeNumber = likeDB.likeAmount(tid);
                     commentNumber = commentDB.getNumber(tid);
-                    parentTweet = ?parentTweet_;
+                    parentTweet = parentTweet_;
                 }
             }else{
                 null
@@ -372,19 +372,26 @@ module{
             getLastestTweetId()
         };
 
-        private func makeParentTweetByTid(tid : Nat) : Tweet.parentTweet{
+        /**
+        *   @param tid : tweet id, not parent tweet id
+        */
+        private func makeParentTweetByTid(tid : Nat) : ?Tweet.parentTweet{
             let tweet = Option.unwrap<Tweet.Tweet>(tweetMap.get(tid));
-            // cor : comment or retweet : 0 -> comment, retweet : 1
-            let cor = if((tweet.parentTid) < 0){ 0 } else { 1 };
+            var cor = true;
+            switch(Tweet.getTweetType(tweet.parentTid)){
+                case null { return null; };
+                case (?bool){ cor := bool };
+            };
             let parT_ = Int.abs(tweet.parentTid);
-            let showTweet = Option.unwrap<ShowTweet>(getShowTweetById(parT_));
-            {
+            let con_ = Option.unwrap<Content.content>(contentDB.get(parT_));
+            let uid = Option.unwrap<Principal>(userDB.getUidByTid(parT_));
+            ?{
                 cor = cor;
-                tid = showTweet.tid;
-                content = showTweet.content;
-                time = showTweet.time;
-                user = showTweet.user;
-                url = showTweet.url;
+                tid = parT_;
+                content = con_.text;
+                time = con_.time;
+                user = Option.unwrap<User.User>(userDB.getUserProfile(uid));
+                url = con_.url;
             }
         };
 

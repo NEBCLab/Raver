@@ -13,22 +13,19 @@ module {
     public type Time = Text;
     //tweet owner
     public type Owner = Principal;
-
-    //外键， tweet内容全部用数据库存着
-    //存储的tweet 当前版本要将字段全部转换为相应数据库的主键
+    
+    //Todo : visiable
     public type Tweet = {
         tid : Nat;
-        
         // parentTid = 0  no parent tweet
-        // parentTid < 0 the type of this tweet is comment, comment is parentTid
-        // parentTid > 0 the type of this tweet is  retweet
+        // parentTid > 0 the type of this tweet is comment, comment is parentTid
+        // parentTid < 0 the type of this tweet is  retweet
         parentTid : Int;
-        //visiable : todo
     };
 
     public type parentTweet = {
-        // cor : comment or retweet : 0 -> comment, retweet : 1
-        cor : Nat;
+        // cor : true -> comment; false -> retweet
+        cor : Bool;
         tid : Nat;
         content : Text;
         time : Text;
@@ -69,5 +66,17 @@ module {
             parentTweet = null;
         };
     };
+
+    // get tweet type from parentTid
+    // parentTid = 0  no parent tweet, return null
+    // parentTid > 0 the type of this tweet is comment, return true
+    // parentTid < 0 the type of this tweet is  retweet, return false
+    public func getTweetType(parentTid : Int) : ?Bool{
+        if(parentTid < 0){ ?false }
+        else if(parentTid == 0) { null }
+        else{ ?true }
+    };
+
+
 
 };

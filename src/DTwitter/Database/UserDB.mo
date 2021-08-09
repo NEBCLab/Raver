@@ -96,6 +96,17 @@ module{
                     };
                 };
                 assert(uid == user_uid);
+                var name_uid = switch(userName2Uid.get(user.username)){
+                    case null{
+                        ignore userDB.replace(uid, user);
+                        ignore userName2Uid.replace(user.username, uid);
+                        return true;
+                    };
+                    case(?principal){
+                        principal;
+                    };
+                };
+                if(isUserNameUsed(user.username) and name_uid!=uid ){return false;};
                 ignore userDB.replace(uid, user);
                 ignore userName2Uid.replace(user.username, uid);
                 true

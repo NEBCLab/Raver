@@ -50,6 +50,10 @@ actor DTwitter{
         userDB.isUserExist(uid)
     };
 
+    public query func isUserNameUsed(userName : Text) : async Bool{
+        userDB.isUserNameUsed(userName)
+    };
+
     /**
     * @param msg : internet identitiy
     * @param uname : Text new user name

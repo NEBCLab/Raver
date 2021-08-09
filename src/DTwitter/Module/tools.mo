@@ -24,17 +24,15 @@ module{
     return hash;
   };
 
-
   public func binarySearch(array : [Nat], value : Nat) : Nat{
     var start : Nat = 0;
     let size = array.size();
+    if(size == 0) { return 0; };
     var end : Nat = size - 1;
     var middle : Nat = (start + end) / 2;
-
     while(array[middle] != value){
       middle := (start + end) / 2;
       if(start > end){
-          //not found
           return size;
       };
       if(array[middle] > value){
@@ -43,10 +41,9 @@ module{
           return middle;
       }else{
         start := middle + 1;
-      }
+      };
     };
     return middle;
-
   };
 
 

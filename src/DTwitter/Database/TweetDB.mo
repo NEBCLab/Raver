@@ -124,9 +124,6 @@ module{
             }
         };
 
-
-
-
         /**
         * get tweet by id
         */
@@ -292,7 +289,7 @@ module{
                     //return array
                     let array : [var ShowTweet] = Array.init<ShowTweet>(20, Tweet.defaultType().defaultShowTweet);
                     var key = tools.binarySearch(tidArray, tid);
-                    if(key == array.size()) { return null };                    
+                    if(key == array.size() or key == 0) { return null };                    
                     var i : Nat = 0;
                     loop{
                         var t : Int = key - 1 - i;
@@ -313,8 +310,9 @@ module{
             commentDB.add(tid, cid)
         };
 
-        //the type of tid and cid is TID, tid : commented tweet, cid : comment tweet
-        public func deleteComment(tid : Nat, cid : Nat) : Bool{
+        public func deleteComment(cid : Nat) : Bool{
+            var tid = Int.abs(Option.unwrap<Tweet.Tweet>(tweetMap.get(cid)).parentTid);
+            if(tid <= 0) {return false;};
             commentDB.delete(tid, cid)
         };
 

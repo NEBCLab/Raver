@@ -42,6 +42,7 @@ module{
                 false
             }else{
                 userDB.put(user.uid, user);
+                userName2Uid.put(user.username, user.uid);
                 true
             }
         };
@@ -96,6 +97,7 @@ module{
                 };
                 assert(uid == user_uid);
                 ignore userDB.replace(uid, user);
+                ignore userName2Uid.replace(user.username, uid);
                 true
             }else{
                 false

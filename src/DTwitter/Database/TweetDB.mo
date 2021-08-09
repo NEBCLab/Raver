@@ -291,7 +291,7 @@ module{
                     let array : [var ShowTweet] = Array.init<ShowTweet>(20, Tweet.defaultType().defaultShowTweet);
                     var key = tools.binarySearch(tidArray, tid);
                     if(key == array.size()) { return null };                    
-                    var i = 0;
+                    var i : Nat = 0;
                     loop{
                         if(key - 1 - i < 0){ return ?(Array.freeze<ShowTweet>(array)); };
                         array[i] := Option.unwrap<ShowTweet>(getShowTweetById(tidArray[key - 1 - i]));

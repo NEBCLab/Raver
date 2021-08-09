@@ -157,12 +157,18 @@ actor DTwitter{
         tweetDB.getUserLastestTenTweets(msg.caller)
     };
 
+
     //获取关注用户及自己的最新20条post
     public query func getFollowLastest20Tweets(uid : Principal, lastTid : Nat) : async [ShowTweet]{
         var TidArray = tweetDB.getFollowLastest20Tweets(uid, lastTid);
-        var tempArray = Array.init<ShowTweet>(TidArray.size(), Tweet.defaultType().defaultShowTweet);
+        var size = 0;
+        for(k in TidArray.vals()){
+            if(k != 0) size := size + 1; 
+        };
+        var tempArray = Array.init<ShowTweet>(size, Tweet.defaultType().defaultShowTweet);
         var i = 0;
         for(k in TidArray.vals()){
+            if(k == 0) return Array.freeze<ShowTweet>(tempArray);
             tempArray[i] := Option.unwrap<ShowTweet>(tweetDB.getShowTweetById(k));
             i := i + 1;
         };
@@ -172,9 +178,14 @@ actor DTwitter{
     //获取关注用户及自己的最新amount条post
     public query func getFollowLastestAmountTweets(uid : Principal, lastTid : Nat, amount : Nat) : async [ShowTweet]{
         var TidArray = tweetDB.getFollowLastestAmountTweets(uid, lastTid, amount);
-        var tempArray = Array.init<ShowTweet>(TidArray.size(), Tweet.defaultType().defaultShowTweet);
+        var size = 0;
+        for(k in TidArray.vals()){
+            if(k != 0) size := size + 1; 
+        };
+        var tempArray = Array.init<ShowTweet>(size, Tweet.defaultType().defaultShowTweet);
         var i = 0;
         for(k in TidArray.vals()){
+            if(k == 0) return Array.freeze<ShowTweet>(tempArray);
             tempArray[i] := Option.unwrap<ShowTweet>(tweetDB.getShowTweetById(k));
             i := i + 1;
         };

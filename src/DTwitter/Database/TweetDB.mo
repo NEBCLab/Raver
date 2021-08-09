@@ -147,6 +147,7 @@ module{
             }
         };
 
+
         //获取关注用户及自己的最新20条post
         public func getFollowLastest20Tweets(uid : Principal, lastTID : Nat) : [Nat]{
             var followArray = userDB.getFollow(uid);

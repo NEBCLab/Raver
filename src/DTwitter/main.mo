@@ -289,10 +289,9 @@ actor DTwitter{
 
     public query func isTwoUserFollowEachOther(user_A : Principal, user_B : Principal) : async Bool{
         var result = userDB.isAFollowedByB(user_A, user_B);
-        if(result == 0) return false;
+        if(result == 0 or result ==10) return false;
         if(result == 6) throw Error.reject("A does not exist");
         if(result == 7) throw Error.reject("B does not exist");
-        if(result == 10) throw Error.reject("Unknown Error");
         if(result == 1){
             var result_reverse = userDB.isAFollowedByB(user_B, user_A);
             if(result_reverse == 0) return false;
@@ -304,10 +303,9 @@ actor DTwitter{
 
     public query func isAFollowedByB(user_A : Principal, user_B : Principal) : async Bool{
         var result = userDB.isAFollowedByB(user_A, user_B);
-        if(result == 0) return false;
+        if(result == 0 or result ==10) return false;
         if(result == 6) throw Error.reject("A does not exist");
         if(result == 7) throw Error.reject("B does not exist");
-        if(result == 10) throw Error.reject("Unknown Error");
         if(result == 1) return true;
         false;
     };

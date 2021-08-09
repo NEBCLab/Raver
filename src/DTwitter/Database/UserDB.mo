@@ -307,7 +307,7 @@ module{
                 if(isUserExist(user_B)){
                     switch(follower.get(user_A)){
                         case null {
-                            return 10; //Unknown Error
+                            return 10; //No one follows A
                         };
                         case(?set){
                             if(TrieSet.mem<Principal>(set, user_B, Principal.hash(user_B),Principal.equal)) return 1;

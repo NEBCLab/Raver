@@ -156,6 +156,21 @@ actor DTwitter{
         tweetDB.getUserLastestTenTweets(msg.caller)
     };
 
+    //临时函数
+    public query func getFollowAllTweets(uid : Principal) : async [ShowTweet]{
+        var TidArray = tweetDB.getFollowAllTweets(uid);
+        var tempArray = Array.init<ShowTweet>(100, Tweet.defaultType().defaultShowTweet);
+        var i = 0;
+        for(k in TidArray.vals()){
+            for(l in k.vals()){
+                tempArray[i] := Option.unwrap<ShowTweet>(tweetDB.getShowTweetById(l));
+                i := i + 1;
+                if(i == 100) return Array.freeze<ShowTweet>(tempArray);
+            };
+        };
+        Array.freeze<ShowTweet>(tempArray)
+    };
+
     //获取关注用户及自己的最新20条post
     public query func getFollowLastest20Tweets(uid : Principal, lastTid : Nat) : async [ShowTweet]{
         var TidArray = tweetDB.getFollowLastest20Tweets(uid, lastTid);

@@ -150,6 +150,29 @@ module{
             }
         };
 
+        //获取关注用户及自己的所有post
+        public func getFollowAllTweets(uid : Principal) : [var [Nat]]{
+            var followArray = userDB.getFollow(uid);
+            var tweetArray = Array.init<[Nat]>(followArray.size()+1, []);
+            var count = 0;
+            for(x in followArray.vals()){
+                tweetArray[count] := switch(userDB.getUserAllTweets(x)){
+                    case null{[]};
+                    case(?array){
+                        array
+                    };
+                };
+                count+=1;
+            };
+            tweetArray[count] := switch(userDB.getUserAllTweets(uid)){
+                case null{[]};
+                case(?array){
+                    array
+                };
+            };
+            tweetArray
+        };
+
         //获取关注用户及自己的最新20条post
         public func getFollowLastest20Tweets(uid : Principal, lastTID : Nat) : [Nat]{
             var followArray = userDB.getFollow(uid);

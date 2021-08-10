@@ -1,5 +1,6 @@
 import Nat32 "mo:base/Nat32";
 import List "mo:base/List";
+import Int "mo:base/Int";
 
 module{
   public func hash(j : Nat32) : Nat32 {
@@ -25,13 +26,14 @@ module{
   };
 
   public func binarySearch(array : [Nat], value : Nat) : Nat{
-    var start : Nat = 0;
+    var start : Int = 0;
     let size = array.size();
     if(size == 0) { return 0; };
-    var end : Nat = size - 1;
-    var middle : Nat = (start + end) / 2;
+    var end : Int = size - 1;
+    var middle : Nat = Int.abs((start + end) / 2);
+    
     while(array[middle] != value){
-      middle := (start + end) / 2;
+      middle := Int.abs((start + end) / 2);
       if(start > end){
           return size;
       };

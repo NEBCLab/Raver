@@ -347,9 +347,8 @@ actor DTwitter{
     };
 
     public shared(msg) func deleteComment(cid : Nat) : async Bool{
-        ignore tweetDB.deleteTweet(msg.caller, cid);
-        ignore tweetDB.deleteComment(cid);
-        true
+        if(tweetDB.deleteTweet(msg.caller,cid) and tweetDB.deleteComment(cid)) {return true;};
+        false
     };
 
     public query func getTweetAllComments(tid : Nat) : async [ShowTweet]{

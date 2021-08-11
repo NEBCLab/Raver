@@ -27,7 +27,7 @@ module{
         * global tweet id 
         * tid : Nat
         */
-        private var tid : Nat = 1;
+        private var tid : Nat = 0;
 
         /**
         * tweet map : map<tweet TID , Tweet>

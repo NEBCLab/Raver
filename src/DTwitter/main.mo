@@ -189,7 +189,7 @@ actor DTwitter{
         var tweetArray = tweetDB.getUserOlder20Tweets(uid, oldTid);
         var size : Int = 0;
         for(k in tweetArray.vals()){
-            if(k != Tweet.defaultType().defaultShowTweet) size := size + 1; 
+            if(k.tid!=0) size := size + 1; 
         };
         var tempArray = Array.init<ShowTweet>(Int.abs(size),Tweet.defaultType().defaultShowTweet);
         var i =0;
@@ -353,7 +353,7 @@ actor DTwitter{
         var tweetArray = tweetDB.getTweetOlder20Comments(tid, oldTid);
         var size : Int = 0;
         for(k in tweetArray.vals()){
-            if(k != Tweet.defaultType().defaultShowTweet) size := size + 1; 
+            if(k.tid != 0) size := size + 1; 
         };
         var tempArray = Array.init<ShowTweet>(Int.abs(size),Tweet.defaultType().defaultShowTweet);
         var i =0;

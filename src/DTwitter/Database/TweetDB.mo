@@ -290,17 +290,17 @@ module{
                     var key : Nat = 0;
                     if(tidArray.size() == 0){ return null; };
                     if(tid == 0){ key := tidArray.size() - 1 } else { key := tools.binarySearch(tidArray, tid) - 1 };
-                    if(key == tidArray.size() ) { return null; };
+                    if(key == tidArray.size()) { return null; };
                     //return array
                     var array : [var ShowTweet] = [var];
                     if(key <= 19){
-                        array := Array.init<ShowTweet>(key, Tweet.defaultType().defaultShowTweet);
+                        array := Array.init<ShowTweet>(key + 1, Tweet.defaultType().defaultShowTweet);
                     }else{
                         array := Array.init<ShowTweet>(20, Tweet.defaultType().defaultShowTweet);
                     };
                     var i : Nat = 0;
                     loop{
-                        if(key < i){ return ?Array.freeze<ShowTweet>(array) };
+                        if(i == 20 or key == Int.abs(i - 1)){ return ?Array.freeze<ShowTweet>(array) };
                         array[i] := Option.unwrap<ShowTweet>(getShowTweetById(tidArray[key - i]));
                         i := i + 1;
                     }

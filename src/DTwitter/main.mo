@@ -195,8 +195,8 @@ actor DTwitter{
     /**
     * @param number : Nat -> [Tweet] size <= 5
     */
-    public query func getUserOlder20Tweets(tid : Nat, uid : Principal) : async [ShowTweet]{
-        switch(tweetDB.getUserOlder20Tweets(uid, tid)){
+    public shared query(msg) func getUserOlder20Tweets(tid : Nat) : async [ShowTweet]{
+        switch(tweetDB.getUserOlder20Tweets(msg.caller, tid)){
             case(null) { [] };
             case(?tweets){ tweets };
         }

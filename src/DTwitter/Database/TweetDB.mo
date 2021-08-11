@@ -295,7 +295,7 @@ module{
                     var backArray = Array.init<ShowTweet>(20, Tweet.defaultType().defaultShowTweet);
                     var i = 0;
                     while(size > 0 and i < 20){
-                        if(tweetId[size-1] >= oldTid) {
+                        if(tweetId[size-1] >= oldTid and oldTid != 0) {
                             size-=1;
                         }else{
                             backArray[i] := Option.unwrap<ShowTweet>(getShowTweetById(tweetId[size-1]));
@@ -328,7 +328,7 @@ module{
                     var backArray = Array.init<ShowTweet>(20, Tweet.defaultType().defaultShowTweet);
                     var i = 0;
                     while(size > 0 and i < 20){
-                        if(tweetId[size-1] >= oldTid) {
+                        if(tweetId[size-1] >= oldTid and oldTid != 0) {
                             size-=1;
                         }else{
                             backArray[i] := Option.unwrap<ShowTweet>(getShowTweetById(tweetId[size-1]));

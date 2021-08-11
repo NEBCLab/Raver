@@ -193,9 +193,10 @@ actor DTwitter{
         };
         var tempArray = Array.init<ShowTweet>(Int.abs(size),Tweet.defaultType().defaultShowTweet);
         var i =0;
-        while(size >= 0){
+        while(size > 0){
             tempArray[i] := tweetArray[i];
             size-=1;
+            i+=1;
         };
         Array.freeze<ShowTweet>(tempArray)
     };
@@ -357,8 +358,9 @@ actor DTwitter{
         };
         var tempArray = Array.init<ShowTweet>(Int.abs(size),Tweet.defaultType().defaultShowTweet);
         var i =0;
-        while(size >= 0){
+        while(size > 0){
             tempArray[i] := tweetArray[i];
+            i+=1;
             size-=1;
         };
         Array.freeze<ShowTweet>(tempArray)

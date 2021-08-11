@@ -42,7 +42,7 @@ module{
         };
 
         /****/
-        public func getTweetAllComments(tid : Nat) : ?[Nat]{
+        public func getTweetOlder20Comments(tid : Nat) : ?[Nat]{
             switch(relation.get(tid)){
                 case null { null };
                 case (?set) {

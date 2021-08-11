@@ -148,12 +148,12 @@ module{
         };
 
 
-        //获取关注用户及自己的最新20条post
-        public func getFollowLastest20Tweets(uid : Principal, lastTID : Nat) : [Nat]{
+        //获取关注用户及自己的50条post
+        public func getFollowOlder50Tweets(uid : Principal, oldTID : Nat) : [Nat]{
             var followArray = userDB.getFollow(uid);
             var tweetArray = Array.init<[Nat]>(followArray.size()+1, []);
             var count = 0; var result_count = 0;
-            var result = Array.init<Nat>(20,0);
+            var result = Array.init<Nat>(50,0);
             var allSize=0;
             for(x in followArray.vals()){
                 tweetArray[count] := switch(userDB.getUserAllTweets(x)){
@@ -174,7 +174,7 @@ module{
             };
             var i = 1;
             var hasSel = Array.init<Nat>(followArray.size()+1,1);
-            while(i <= 20 and i <= allSize){
+            while(i <= 50 and i <= allSize){
                 count := 0;
                 var maxn=0;
                 var maxn_count=0;
@@ -186,13 +186,14 @@ module{
                     };
                     count+=1;
                 };
-                if(maxn <= lastTID){
-                    return Array.freeze<Nat>(result);
+                if(maxn >= oldTID){
+                    hasSel[maxn_count]+=1;
+                }else{
+                    hasSel[maxn_count]+=1;
+                    result[result_count]:=maxn;
+                    result_count+=1;
+                    i+=1;
                 };
-                hasSel[maxn_count]+=1;
-                result[result_count]:=maxn;
-                result_count+=1;
-                i+=1;
             };
             Array.freeze<Nat>(result)
         };
@@ -245,7 +246,7 @@ module{
             };
             Array.freeze<Nat>(result)
         };
-
+        
         public func getUserLastestTenTweets(uid : Principal) : [ShowTweet]{
             // user tweet tid
             var array : [Nat] = switch(userDB.getUserAllTweets(uid)){

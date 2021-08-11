@@ -146,9 +146,9 @@ actor DTwitter{
     };
 
 
-    //获取关注用户及自己的最新20条post
-    public shared query(msg) func getFollowLastest20Tweets(lastTid : Nat) : async [ShowTweet]{
-        var TidArray = tweetDB.getFollowLastest20Tweets(msg.caller, lastTid);
+    //获取关注用户及自己的50条post
+    public shared query(msg) func getFollowOlder50Tweets(oldTid : Nat) : async [ShowTweet]{
+        var TidArray = tweetDB.getFollowOlder50Tweets(msg.caller, oldTid);
         var size = 0;
         for(k in TidArray.vals()){
             if(k != 0) size := size + 1; 
@@ -163,13 +163,14 @@ actor DTwitter{
         Array.freeze<ShowTweet>(tempArray)
     };
 
-    //获取关注用户及自己的最新amount条post
+    //获取关注用户及自己的最新amount条post，实际获取超过100条报error
     public shared query(msg) func getFollowLastestAmountTweets(lastTid : Nat, amount : Nat) : async [ShowTweet]{
         var TidArray = tweetDB.getFollowLastestAmountTweets(msg.caller, lastTid, amount);
         var size = 0;
         for(k in TidArray.vals()){
             if(k != 0) size := size + 1; 
         };
+        if(size > 100) {throw Error.reject("new tweet amount exceed 100")};
         var tempArray = Array.init<ShowTweet>(size, Tweet.defaultType().defaultShowTweet);
         var i = 0;
         for(k in TidArray.vals()){

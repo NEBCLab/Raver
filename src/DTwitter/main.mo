@@ -47,8 +47,8 @@ actor DTwitter{
         return status;
     };
 
-    public query func isUserExist(uid : Principal) : async Bool{
-        userDB.isUserExist(uid)
+    public shared query(msg) func isUserExist() : async Bool{
+        userDB.isUserExist(msg.caller)
     };
 
     public query func isUserNameUsed(userName : Text) : async Bool{
@@ -121,18 +121,6 @@ actor DTwitter{
         }
     };
 
-    /**
-    * get user's all tweet id
-    * @param msg : msg
-    * @return user's all tweet id array : [Nat]
-    */
-    public query func getUserAllTid(uid : Principal) : async [Nat]{
-        switch(userDB.getUserAllTweets(uid)){
-            case ( null ){ [] };
-            case (?array) { array };
-        }
-    };
-
     //get user's all show tweet
     public query func getUserAllTweets(uid : Principal) : async [ShowTweet]{
         switch(userDB.getUserAllTweets(uid)){
@@ -159,8 +147,8 @@ actor DTwitter{
 
 
     //获取关注用户及自己的最新20条post
-    public query func getFollowLastest20Tweets(uid : Principal, lastTid : Nat) : async [ShowTweet]{
-        var TidArray = tweetDB.getFollowLastest20Tweets(uid, lastTid);
+    public shared query(msg) func getFollowLastest20Tweets(lastTid : Nat) : async [ShowTweet]{
+        var TidArray = tweetDB.getFollowLastest20Tweets(msg.caller, lastTid);
         var size = 0;
         for(k in TidArray.vals()){
             if(k != 0) size := size + 1; 
@@ -176,8 +164,8 @@ actor DTwitter{
     };
 
     //获取关注用户及自己的最新amount条post
-    public query func getFollowLastestAmountTweets(uid : Principal, lastTid : Nat, amount : Nat) : async [ShowTweet]{
-        var TidArray = tweetDB.getFollowLastestAmountTweets(uid, lastTid, amount);
+    public shared query(msg) func getFollowLastestAmountTweets(lastTid : Nat, amount : Nat) : async [ShowTweet]{
+        var TidArray = tweetDB.getFollowLastestAmountTweets(msg.caller, lastTid, amount);
         var size = 0;
         for(k in TidArray.vals()){
             if(k != 0) size := size + 1; 

@@ -365,8 +365,8 @@ actor DTwitter{
         }
     };
 
-    public query func isTweetLiked(tid : Nat, uid : Principal) : async Bool{
-        tweetDB.isTweetLiked(tid, uid)
+    public query(msg) func isTweetLiked(tid : Nat) : async Bool{
+        tweetDB.isTweetLiked(tid, msg.caller)
     };
 
     /**

@@ -47,7 +47,8 @@ module{
                 case null { null };
                 case (?set) {
                     var array = TrieSet.toArray<Nat>(set);
-                    ?array
+                    var sorted =Array.sort<Nat>(array, Nat.compare);
+                    ?sorted
                 };
             };
         };

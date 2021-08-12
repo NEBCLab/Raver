@@ -25,6 +25,7 @@ module{
     return hash;
   };
 
+
   public func binarySearch(array : [Nat], value : Nat) : Nat{
     var start : Int = 0;
     let size = array.size();
@@ -47,6 +48,25 @@ module{
     };
     return middle;
   };
+
+    public func binarySearchLess(array : [Nat], value : Nat) : Int{
+      if(array.size() == 0) return -2;
+      var start : Int = 0;
+      let size = array.size();
+      if(size == 0) { return 0; };
+      var end : Int = size;
+      var middle : Nat = Int.abs(end / 2);
+      if(array[0] >= value) return -1;
+      while(start < end){
+        middle := Int.abs((start+end)/2);
+        if(array[middle] >= value){
+          end := middle;
+        }else if(array[middle] < value){
+          start := middle+1;
+        };
+      };
+      return start;
+    };
 
 
 };

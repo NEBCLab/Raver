@@ -149,12 +149,13 @@ module{
 
 
         //获取关注用户及自己的50条post
-        public func getFollowOlder50Tweets(uid : Principal, oldTID : Nat) : [Nat]{
+        public func getFollowOlder50Tweets(uid : Principal, oldTID : Nat) : [ShowTweet]{
             var followArray = userDB.getFollow(uid);
             var tweetArray = Array.init<[Nat]>(followArray.size()+1, []);
             var count = 0; var result_count = 0;
-            var result = Array.init<Nat>(50,0);
             var allSize=0;
+            var actSize=0;
+            var pos = Array.init<Int>(followArray.size()+1,1);
             for(x in followArray.vals()){
                 tweetArray[count] := switch(userDB.getUserAllTweets(x)){
                     case null{[]};
@@ -172,33 +173,36 @@ module{
                     array
                 };
             };
+            count+=1;
+            while(count > 0){
+                pos[count-1] := tools.binarySearchLess(tweetArray[count-1], oldTID);
+                if(pos[count-1] >= 0){
+                    actSize := actSize+1+Int.abs(pos[count-1]);
+                };
+                count -= 1;
+            };
+            var array_size = 50;
+            if(actSize < 50) array_size := actSize;
+            var result = Array.init<ShowTweet>(actSize,Tweet.defaultType().defaultShowTweet);
             var i = 1;
-            var acti = 1;
-            var hasSel = Array.init<Nat>(followArray.size()+1,1);
-            while(i <= 50 and i <= allSize and acti <= allSize){
+            while(i <= actSize and i <= allSize){
                 count := 0;
                 var maxn=0;
                 var maxn_count=0;
-                while(count < followArray.size()+1){
-                    var t : Int = tweetArray[count].size()-hasSel[count];
-                    if(t >= 0 and tweetArray[count][tweetArray[count].size()-hasSel[count]] > maxn){
-                        maxn := tweetArray[count][tweetArray[count].size()-hasSel[count]];
+                while(count < followArray.size()+1 and pos[count] >= 0){
+                    var t = Int.abs(pos[count]);
+                    if(tweetArray[count][t] > maxn){
+                        maxn := tweetArray[count][t];
                         maxn_count := count;
                     };
                     count+=1;
                 };
-                if(maxn >= oldTID){
-                    hasSel[maxn_count]+=1;
-                    acti+=1;
-                }else{
-                    hasSel[maxn_count]+=1;
-                    result[result_count]:=maxn;
-                    result_count+=1;
-                    i+=1;
-                    acti+=1;
-                };
+                pos[maxn_count]-=1;
+                result[result_count]:=Option.unwrap<ShowTweet>(getShowTweetById(maxn));
+                result_count+=1;
+                i+=1;
             };
-            Array.freeze<Nat>(result)
+            Array.freeze<ShowTweet>(result)
         };
 
         //获取关注用户及自己的amount条最新post
@@ -292,16 +296,18 @@ module{
                 case(null) { [] };
                 case(?tweetId){
                     var size = tweetId.size();
-                    var backArray = Array.init<ShowTweet>(20, Tweet.defaultType().defaultShowTweet);
+                    var pos : Int = size-1;
+                    if(oldTid != 0) pos := tools.binarySearchLess(tweetId, oldTid);
+                    if(pos == -2 or pos == -1) return [];
+                    var back_size = 20;
+                    if(pos+1 < 20) back_size := Int.abs(pos+1);
+                    var backArray = Array.init<ShowTweet>(back_size, Tweet.defaultType().defaultShowTweet);
                     var i = 0;
-                    while(size > 0 and i < 20){
-                        if(tweetId[size-1] >= oldTid and oldTid != 0) {
-                            size-=1;
-                        }else{
-                            backArray[i] := Option.unwrap<ShowTweet>(getShowTweetById(tweetId[size-1]));
-                            size -= 1;
-                            i += 1;
-                        };
+                    var posNat = Int.abs(pos+1);
+                    while(posNat > 0 and i < back_size){
+                        backArray[i] := Option.unwrap<ShowTweet>(getShowTweetById(tweetId[posNat-1]));
+                        posNat -= 1;
+                        i += 1;
                     };
                     Array.freeze<ShowTweet>(backArray);
                 };
@@ -325,16 +331,18 @@ module{
                 case null { [] };
                 case (?tweetId){
                     var size = tweetId.size();
-                    var backArray = Array.init<ShowTweet>(20, Tweet.defaultType().defaultShowTweet);
+                    var pos : Int = size-1;
+                    if(oldTid != 0) pos := tools.binarySearchLess(tweetId, oldTid);
+                    if(pos == -2 or pos == -1) return [];
+                    var back_size = 20;
+                    if(pos+1 < 20) back_size := Int.abs(pos+1);
+                    var backArray = Array.init<ShowTweet>(back_size, Tweet.defaultType().defaultShowTweet);
                     var i = 0;
-                    while(size > 0 and i < 20){
-                        if(tweetId[size-1] >= oldTid and oldTid != 0) {
-                            size-=1;
-                        }else{
-                            backArray[i] := Option.unwrap<ShowTweet>(getShowTweetById(tweetId[size-1]));
-                            size -= 1;
-                            i += 1;
-                        };
+                    var posNat = Int.abs(pos+1);
+                    while(posNat > 0 and i < back_size){
+                        backArray[i] := Option.unwrap<ShowTweet>(getShowTweetById(tweetId[posNat-1]));
+                        posNat -= 1;
+                        i += 1;
                     };
                     Array.freeze<ShowTweet>(backArray);
                 };

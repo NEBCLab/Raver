@@ -149,19 +149,7 @@ actor DTwitter{
 
     //获取关注用户及自己的50条post
     public shared query(msg) func getFollowOlder50Tweets(oldTid : Nat) : async [ShowTweet]{
-        var TidArray = tweetDB.getFollowOlder50Tweets(msg.caller, oldTid);
-        var size = 0;
-        for(k in TidArray.vals()){
-            if(k != 0) size := size + 1; 
-        };
-        var tempArray = Array.init<ShowTweet>(size, Tweet.defaultType().defaultShowTweet);
-        var i = 0;
-        for(k in TidArray.vals()){
-            if(k == 0) return Array.freeze<ShowTweet>(tempArray);
-            tempArray[i] := Option.unwrap<ShowTweet>(tweetDB.getShowTweetById(k));
-            i := i + 1;
-        };
-        Array.freeze<ShowTweet>(tempArray)
+        tweetDB.getFollowOlder50Tweets(msg.caller, oldTid)
     };
 
     //获取关注用户及自己的最新amount条post，实际获取超过100条报error
@@ -186,19 +174,7 @@ actor DTwitter{
     * @param number : Nat -> [Tweet] size <= 5
     */
     public query func getUserOlder20Tweets(uid : Principal, oldTid : Nat) : async [ShowTweet]{
-        var tweetArray = tweetDB.getUserOlder20Tweets(uid, oldTid);
-        var size : Int = 0;
-        for(k in tweetArray.vals()){
-            if(k.tid!=0) size := size + 1; 
-        };
-        var tempArray = Array.init<ShowTweet>(Int.abs(size),Tweet.defaultType().defaultShowTweet);
-        var i =0;
-        while(size > 0){
-            tempArray[i] := tweetArray[i];
-            size-=1;
-            i+=1;
-        };
-        Array.freeze<ShowTweet>(tempArray)
+        tweetDB.getUserOlder20Tweets(uid, oldTid)
     };
 
 
@@ -351,19 +327,7 @@ actor DTwitter{
     };
 
     public query func getTweetOlder20Comments(tid : Nat, oldTid : Nat) : async [ShowTweet]{
-        var tweetArray = tweetDB.getTweetOlder20Comments(tid, oldTid);
-        var size : Int = 0;
-        for(k in tweetArray.vals()){
-            if(k.tid != 0) size := size + 1; 
-        };
-        var tempArray = Array.init<ShowTweet>(Int.abs(size),Tweet.defaultType().defaultShowTweet);
-        var i =0;
-        while(size > 0){
-            tempArray[i] := tweetArray[i];
-            i+=1;
-            size-=1;
-        };
-        Array.freeze<ShowTweet>(tempArray)
+        tweetDB.getTweetOlder20Comments(tid, oldTid)
     };
 
     public query func getTweetCommentNumber(tid : Nat) : async Nat{

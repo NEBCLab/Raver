@@ -2,7 +2,8 @@ import HashMap "mo:base/HashMap";
 import Nat "mo:base/Nat";
 import Hash "mo:base/Hash";
 import Array "mo:base/Array";
-import TrieSet "mo:base/TrieSet"
+import TrieSet "mo:base/TrieSet";
+import Option "mo:base/Option";
 
 module{
     
@@ -47,8 +48,7 @@ module{
                 case null { null };
                 case (?set) {
                     var array = TrieSet.toArray<Nat>(set);
-                    var sorted =Array.sort<Nat>(array, Nat.compare);
-                    ?sorted
+                    Option.make<[Nat]>(Array.sort<Nat>(array, Nat.compare))
                 };
             };
         };

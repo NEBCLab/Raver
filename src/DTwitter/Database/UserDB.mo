@@ -19,7 +19,7 @@ module{
         // uid -> user profile
         private var userDB = HashMap.HashMap<Principal, User>(1, Principal.equal, Principal.hash);
         // uid -> tweets tid
-        private var userTweet = HashMap.HashMap<Principal, [Nat]>(1, Principal.equal, Principal.hash);
+        private var userTweet = HashMap.HashMap<Principal, TrieSet.Set<Nat>>(1, Principal.equal, Principal.hash);
         // follower : user uid -> follower uid List
         private var follower = HashMap.HashMap<Principal, TrieSet.Set<Principal>>(1, Principal.equal, Principal.hash);
         // follow user : user uid -> follow uid List
@@ -159,13 +159,15 @@ module{
         public func addTweet(uid : Principal, tid : Nat) : Bool{
             if(isUserExist(uid)){
                 switch(userTweet.get(uid)){
-                    case(?tweet){
-                        var tweetArray : [Nat] = Array.append(tweet, [tid]);
-                        ignore userTweet.replace(uid, tweetArray);
+                    case(?set){
+                        var newSet = TrieSet.put<Nat>(set,tid,Hash.hash(tid),Nat.equal);
+                        userTweet.put(uid, newSet);
                         putTweetUser(tid, uid);
                     };
                     case(_){
-                        userTweet.put(uid, [tid]);
+                        var tempSet = TrieSet.empty<Nat>();
+                        tempSet := TrieSet.put<Nat>(tempSet,tid,Hash.hash(tid),Nat.equal);
+                        userTweet.put(uid, tempSet);
                         putTweetUser(tid, uid);
                     }
                 };
@@ -181,7 +183,13 @@ module{
         * @return user's tweet -> ?[Nat]  : null || [Nat]
         */
         public func getUserAllTweets(uid : Principal) : ?[Nat]{
-            userTweet.get(uid)
+            switch(userTweet.get(uid)){
+                case null{ null };
+                case(?set){
+                    var array = TrieSet.toArray<Nat>(set);
+                    Option.make<[Nat]>(Array.sort<Nat>(array, Nat.compare))
+                };
+            };
         };
 
         
@@ -192,7 +200,14 @@ module{
         };
 
         /** tweet_user database **/
-        public func deleteTweetUser(tid : Nat){
+        public func deleteTweetUser(uid : Principal, tid : Nat){
+            switch(userTweet.get(uid)){
+                case null{};
+                case(?set){
+                    var newSet = TrieSet.delete<Nat>(set,tid,Hash.hash(tid),Nat.equal);
+                    ignore userTweet.replace(uid, newSet);
+                };
+            };
             tweet_user.delete(tid);
         };
 

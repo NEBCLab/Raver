@@ -41,7 +41,7 @@ actor DTwitter{
         var status = true;
         for(x in tweetArray.vals()){
             if(tweetDB.deleteTweet(msg.caller, x) == false) status := false;
-            userDB.deleteTweetUser(x);
+            userDB.deleteTweetUser(msg.caller, x);
         };
         if(userDB.deleteUser(msg.caller) == false) status := false;
         return status;

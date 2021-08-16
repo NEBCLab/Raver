@@ -80,8 +80,8 @@ actor DTwitter{
         }
     };
 
-    public query func getShowUserProfileByPrincipal(uid : Principal) : async ShowUser{
-        switch(userDB.getShowUserProfile(uid)){
+    public shared query(msg) func getShowUserProfileByPrincipal() : async ShowUser{
+        switch(userDB.getShowUserProfile(msg.caller)){
             case(?showuser){ showuser };
             case(_){ throw Error.reject("no such user") };
         }

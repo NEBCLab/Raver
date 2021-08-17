@@ -1,6 +1,8 @@
 import Nat32 "mo:base/Nat32";
 import List "mo:base/List";
 import Int "mo:base/Int";
+import Time "mo:base/Time";
+import Text "mo:base/Text";
 
 module{
   public func hash(j : Nat32) : Nat32 {
@@ -68,5 +70,48 @@ module{
       return start;
     };
 
+    public func isLeapYear(year : Nat) : Bool{
+      return( (year%4 == 0 and year%100 != 0) or (year%400 == 0) );
+    };
+
+    public func getDaysForYear(year : Nat) : Nat{
+      if(isLeapYear(year)) 366
+      else 365
+    };
+
+    //获取当前时间，返回字符串，格式： yyyy-mm-dd hh:mm:ss 
+    public func parseTime(time : Int) : Text{
+      var mon_yday = [[0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365],[ 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366]];
+      var seconds = time/1000000000;
+      var min = seconds/60;
+      var hour = min/60;
+      var day = hour/24;
+      var curYear = 1970;
+      var month = 0;
+
+      //计算年
+      var daysCurYear = getDaysForYear(curYear);
+      while (day >= daysCurYear){
+          day -= daysCurYear;
+          curYear+=1;
+          daysCurYear := getDaysForYear(curYear);
+      };
+      //计算月日
+      var key = 0;
+      if(isLeapYear(curYear)) key := 1;
+      var i = 1;
+      while(i < 13){
+        if (day < mon_yday[key][i]){
+              month := i;
+              day := day - mon_yday[key][i-1] + 1;
+              i:=13;
+        };
+        i+=1;
+      };
+      seconds%=60;
+      min%=60;
+      hour%=24;
+      return Int.toText(curYear) #"-" #Int.toText(month) #"-" #Int.toText(day) #" " #Int.toText(hour) #":" #Int.toText(min) #":" #Int.toText(seconds);
+    };
 
 };

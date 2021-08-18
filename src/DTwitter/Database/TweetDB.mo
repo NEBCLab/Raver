@@ -14,6 +14,7 @@ import CommentDB "./CommentDB";
 import ContentDB "./ContentDB";
 import tools "../Module/tools";
 import Int "mo:base/Int";
+import Time "mo:base/Time";
 
 module{
     type TID = Tweet.TID;
@@ -33,6 +34,9 @@ module{
         * tweet map : map<tweet TID , Tweet>
         */
         private var tweetMap = HashMap.HashMap<Nat, Tweet.Tweet>(1, Nat.equal, Hash.hash);
+
+        //TID->Time
+        private var tweetTime = HashMap.HashMap<Nat, Int>(1, Nat.equal, Hash.hash);
 
         //comment database
         private var commentDB = CommentDB.commentDB();
@@ -56,6 +60,7 @@ module{
                 parentTid = parentTid;
             };
             let content = contentDB.make(text, time, url);
+            tweetTime.put(tid, Time.now());
             tweetMap.put(tid, tweet);
             ignore contentDB.add(tid, content);
             if(userDB.addTweet(uid, tid)){
@@ -93,6 +98,7 @@ module{
                 case (?uid){
                     if(uid == oper_){
                         tweetMap.delete(tid);
+                        tweetTime.delete(tid);
                         likeDB.deleteLikeDB(tid);
                         switch(contentDB.delete(tid), commentDB.deleteTweet(tid)){
                             case(true, true){
@@ -147,6 +153,47 @@ module{
             }
         };
 
+        //获取最新的post，一次20条
+        public func getNew20Tweets(oldTid : Nat) : [ShowTweet]{
+            var lastest = getLastestTweetId();
+            if(oldTid != 0) lastest := oldTid-1;
+            var current = lastest;
+            var size = 20;
+            if(lastest < 20) size := lastest;
+            var showTweetArray = Array.init<ShowTweet>(size, Tweet.defaultType().defaultShowTweet);
+            var i = 0;
+            while(i < size){
+                showTweetArray[i] := Option.unwrap<ShowTweet>(getShowTweetById(current));
+                i+=1;    
+                current-=1;
+            };
+            Array.freeze<ShowTweet>(showTweetArray)
+        };
+
+        //首页推荐,7天内点赞数超过均值或评论数超过均值的20条post，按时间排序
+        public func getHot20Tweets(oldTid : Nat) : [ShowTweet]{
+            var lastest = getLastestTweetId();
+            if(oldTid != 0) lastest := oldTid-1;
+            var current = lastest;
+            var averageLike = 10;
+            var averageComment = 10;
+            var tweetArray = Array.init<Nat>(20, 0);
+            var i = 0;
+            while((Time.now()-(Option.unwrap<Int>(tweetTime.get(current))))/1000000000/60/60/24 <= 7){
+                if(commentDB.getNumber(current) >= averageLike or likeDB.likeAmount(current) >= averageComment){
+                    tweetArray[i] := current;
+                    i+=1;    
+                };
+                current-=1;
+            };
+            var j = 0;
+            var showTweetArray = Array.init<ShowTweet>(i, Tweet.defaultType().defaultShowTweet);
+            while(j < i){
+                showTweetArray[j] := Option.unwrap<ShowTweet>(getShowTweetById(tweetArray[j]));
+                j+=1;
+            };
+            Array.freeze<ShowTweet>(showTweetArray)
+        };
 
         //获取关注用户及自己的50条post
         public func getFollowOlder50Tweets(uid : Principal, oldTID : Nat) : [ShowTweet]{
@@ -254,42 +301,6 @@ module{
             Array.freeze<Nat>(result)
         };
         
-        public func getUserLastestTenTweets(uid : Principal) : [ShowTweet]{
-            // user tweet tid
-            var array : [Nat] = switch(userDB.getUserAllTweets(uid)){
-                case ( null ){ [] };
-                case (?array) { array };
-            };
-            let tweets : [var ShowTweet] = Array.init<ShowTweet>(10, Tweet.defaultType().defaultShowTweet);
-            var i : Nat = 0;
-            if(array.size() >= 10){
-                while(i < 10){
-                    switch(getShowTweetById(array[array.size() - i - 1])){
-                        case(null) {
-                            i += 1;
-                        };
-                        case(?tweet) { 
-                            tweets[i] := tweet;
-                            i += 1;
-                        };
-                    };
-                };
-                Array.freeze<ShowTweet>(tweets)
-            }else{
-                while(i < array.size()){
-                    switch(getShowTweetById(array[array.size() - i -1])){
-                        case(null) {
-                            i += 1;
-                        };
-                        case(?tweet) { 
-                            i += 1;
-                            tweets[i] := tweet;
-                        };
-                    };
-                };
-                Array.freeze<ShowTweet>(tweets)
-            }
-        };
         
         public func getUserOlder20Tweets(user : Principal, oldTid : Nat) : [ShowTweet]{
             switch(userDB.getUserAllTweets(user)){

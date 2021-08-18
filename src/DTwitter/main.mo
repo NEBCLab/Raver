@@ -47,7 +47,7 @@ actor DTwitter{
         return status;
     };
 
-    public shared query(msg) func isUserExist() : async Bool{
+    public query(msg) func isUserExist() : async Bool{
         userDB.isUserExist(msg.caller)
     };
 
@@ -138,22 +138,23 @@ actor DTwitter{
         }
     };
 
-    
-    /*
-    * get user newest 10 tweets (<= 10)
-    */
-    public shared(msg) func getUserLastestTenTweets() : async [ShowTweet]{
-        tweetDB.getUserLastestTenTweets(msg.caller)
-    };
+    //获取最新的post，一次20条
+     public query func getNew20Tweets(oldTid : Nat) : async [ShowTweet]{
+         tweetDB.getNew20Tweets(oldTid)
+     };
 
+     //首页推荐,7天内点赞数超过均值或评论数超过均值的post，按时间排序,可load more,一次20条
+     public query func getHot20Tweets(oldTid : Nat) : async [ShowTweet]{
+         tweetDB.getHot20Tweets(oldTid)
+     };
 
     //获取关注用户及自己的50条post
-    public shared query(msg) func getFollowOlder50Tweets(oldTid : Nat) : async [ShowTweet]{
+    public query(msg) func getFollowOlder50Tweets(oldTid : Nat) : async [ShowTweet]{
         tweetDB.getFollowOlder50Tweets(msg.caller, oldTid)
     };
 
     //获取关注用户及自己的最新amount条post，实际获取超过100条报error
-    public shared query(msg) func getFollowLastestAmountTweets(lastTid : Nat, amount : Nat) : async [ShowTweet]{
+    public query(msg) func getFollowLastestAmountTweets(lastTid : Nat, amount : Nat) : async [ShowTweet]{
         var TidArray = tweetDB.getFollowLastestAmountTweets(msg.caller, lastTid, amount);
         var size = 0;
         for(k in TidArray.vals()){
@@ -203,7 +204,7 @@ actor DTwitter{
     * @param Tid tweet id
     * @reutrn existed or do not exist
     */
-    public query func isExist(tid : Nat) : async Bool{
+    public query func isTweetExist(tid : Nat) : async Bool{
         tweetDB.isTweetExist(tid)
     };
 
@@ -315,7 +316,7 @@ actor DTwitter{
         else false
     };
 
-    /**                Cooment                                 **/
+    /** -----------------Comment------------------------**/
     public shared(msg) func addComment(text : Text, time : Text, url : Text, parentTid : Int) : async Bool{
         let cid = tweetDB.createTweet(text, time, msg.caller, url, parentTid);
         tweetDB.addComment(Int.abs(parentTid), cid);

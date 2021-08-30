@@ -5,6 +5,7 @@ import User "./Module/User";
 import Error "mo:base/Error";
 import Array "mo:base/Array";
 import Nat "mo:base/Nat";
+import Text "mo:base/Text";
 import Option "mo:base/Option";
 import Int "mo:base/Int";
 
@@ -14,6 +15,17 @@ actor DTwitter{
     type ShowUser = User.showUser;
     private var userDB = UserDB.userDB();
     private var tweetDB = TweetDB.tweetDB(userDB);
+
+    //内测用的简单密码
+    public query func password(text : Text): async Bool{
+        if(text == "dtwitter") return true;
+        return false;
+    };
+
+    //无搜索时使用的 获取所有用户
+    public query func getAllUser() : async  [ShowUser]{
+        userDB.getAllUser()
+    };
 
     /**
     * add user

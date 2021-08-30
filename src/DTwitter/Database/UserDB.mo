@@ -9,6 +9,8 @@ import Nat "mo:base/Nat";
 import Option "mo:base/Option";
 import Text "mo:base/Text";
 import TrieSet "mo:base/TrieSet";
+import Iter "mo:base/Iter";
+import Buffer "mo:base/Buffer";
 
 module{
     type User = User.User;
@@ -401,6 +403,23 @@ module{
                     text
                 };
             };
+        };
+
+        //--------------------内测用------------------------
+
+        public func testApart(username : Text, uid : Principal) : Principal{
+            return uid;
+        };
+
+        public func getAllUser() : [ShowUser]{
+            var userArray = Iter.toArray(userName2Uid.entries());
+            var showUserArray = Array.init<ShowUser>(userArray.size(), User.defaultType().defaultShowUser);
+            var i = 0;
+            for(x in userArray.vals()){
+                showUserArray[i] := Option.unwrap(getShowUserProfile(testApart(x)));
+                i += 1;
+            };
+            return Array.freeze<ShowUser>(showUserArray);
         };
 
     };
